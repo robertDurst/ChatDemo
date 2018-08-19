@@ -1,5 +1,3 @@
-#![feature(use_extern_macros)]
-
 extern crate wasm_bindgen;
 use wasm_bindgen::prelude::*;
 
@@ -12,3 +10,8 @@ extern {
 pub fn greet(name: &str) {
     alert(&format!("Why hello there, {}!", name));
 }
+
+extern crate num;
+extern crate num_traits;
+
+pub mod crypto_math;
