@@ -1,4 +1,5 @@
 import React from 'react';
+const js = import("../../crypto_module");
 
 class Chat extends React.Component {
     constructor(props) {
@@ -7,18 +8,20 @@ class Chat extends React.Component {
           messages: [],
           message: '',
           encrypt: '',
-          decrypt: '',
         };
 
         this.send = this.send.bind(this);
         this.encrypt = this.encrypt.bind(this);
-        this.decrypt = this.decrypt.bind(this);
         this.onChangeMessage = this.onChangeMessage.bind(this);
         this.onChangeEncrypt = this.onChangeEncrypt.bind(this);
-        this.onChangeDecrypt = this.onChangeDecrypt.bind(this);
       }
 
     componentDidMount() {
+        // Call the rust code from js
+        js.then(js => {
+            js.greet("self");
+        });
+
         const socket = require('socket.io-client')('http://localhost:3001');
 
         // Stupid hack for accessing this in the socket events
@@ -103,19 +106,6 @@ class Chat extends React.Component {
             encrypt: '',
         });
     }
-    
-    onChangeDecrypt(e) {
-        this.setState({
-            decrypt: e.target.value,
-        })
-    }
-
-    decrypt() {
-        this.state.socket.emit('MESSAGE', this.state.decrypt);
-        this.setState({
-            decrypt: '',
-        });
-    }
 
     render() {
         return (
@@ -132,10 +122,6 @@ class Chat extends React.Component {
                         <input autoComplete="off" onChange={this.onChangeEncrypt} value={this.state.encrypt}/>
                         <button onClick={this.encrypt} type="button">Encrypt</button>
                     </div>
-                    <div className="inputbox">
-                        <input autoComplete="off" onChange={this.onChangeDecrypt} value={this.state.decrypt}/>
-                        <button onClick={this.decrypt} type="button">Decrypt</button>
-                    </div>
                 </form>
             </div>
         );
@@ -143,4 +129,3 @@ class Chat extends React.Component {
 }
 
 export default Chat;
-

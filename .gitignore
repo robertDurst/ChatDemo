@@ -74,3 +74,6 @@ typings/
 
 # Rob's extras folder
 /extras
+
+# Rust
+/target
