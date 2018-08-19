@@ -260,3 +260,67 @@ mod test_extended_gcd {
         assert_eq!(extended_gcd(a, b), (expected_a, expected_b));
     }
 }
+
+// Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
+pub fn mod_inverse(a: BigInt, m: BigInt) -> Option<BigInt> {
+    if gcd(a.clone(),m.clone()) != One::one() {
+        return None
+    }
+
+    let (u, _) = extended_gcd(a.clone(), m.clone());
+    Some(u % m)
+}
+
+// Used for testing: https://planetcalc.com/3311/
+#[cfg(test)]
+mod test_mod_inverse {
+    use super::*;
+
+    #[test]
+    fn miniscule() {
+        let a = Number!("3");
+        let m = Number!("26");
+        let expected = Some(Number!("9"));
+        assert_eq!(mod_inverse(a, m), expected);
+    }
+
+    #[test]
+    fn tiny() {
+        let a = Number!("333");
+        let m = Number!("2613");
+        let expected = None;
+        assert_eq!(mod_inverse(a, m), expected);
+    }
+
+    #[test]
+    fn small() {
+        let a = Number!("333213");
+        let m = Number!("261312334");
+        let expected = Some(Number!("66480691"));
+        assert_eq!(mod_inverse(a, m), expected);
+    }
+
+    #[test]
+    fn medium() {
+        let a = Number!("3332131312321");
+        let m = Number!("261312334131135465");
+        let expected = Some(Number!("63643812378874741"));
+        assert_eq!(mod_inverse(a, m), expected);
+    }
+
+    #[test]
+    fn large() {
+        let a = Number!("33321313123211923123812");
+        let m = Number!("261312334131135465912381278381238");
+        let expected = None;
+        assert_eq!(mod_inverse(a, m), expected);
+    }
+
+      #[test]
+    fn x_large() {
+        let a = Number!("1873817317893712873298173982173982173897128738912738217371897381374891378");
+        let m = Number!("9188937128738173912371837981739817238917246812647812678394619836281693618963297");
+        let expected = Some(Number!("-996417904483222556354083958060155179719360472118047976841259037232297184027911"));
+        assert_eq!(mod_inverse(a, m), expected);
+    }
+}
