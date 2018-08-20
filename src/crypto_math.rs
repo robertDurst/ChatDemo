@@ -467,80 +467,70 @@ mod test_is_prime_and_rabin_miller {
     fn miniscule_prime() {
         let a = "3";
         let expected = true;
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        assert_eq!(is_prime(a, seed), expected);
+        assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn miniscule_not_prime() {
         let a = "4";
         let expected = false;
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        assert_eq!(is_prime(a, seed), expected);
+        assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn tiny_prime() {
         let a = "1049";
         let expected = true;
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        assert_eq!(is_prime(a, seed), expected);
+        assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn tiny_not_prime() {
         let a = "1050";
         let expected = false;
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        assert_eq!(is_prime(a, seed), expected);
+        assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn small_prime() {
         let a = "100103";
         let expected = true;
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        assert_eq!(is_prime(a, seed), expected);
+        assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn small_not_prime() {
         let a = "100105";
         let expected = false;
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        assert_eq!(is_prime(a, seed), expected);
+        assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn medium_prime() {
         let a = "100000015333";
         let expected = true;
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        assert_eq!(is_prime(a, seed), expected);
+        assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn medium_not_prime() {
         let a = "100000015334";
         let expected = false;
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        assert_eq!(is_prime(a, seed), expected);
+        assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn large_prime() {
         let a = "335184372088831";
         let expected = true;
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        assert_eq!(is_prime(a, seed), expected);
+        assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn large_not_prime() {
         let a = "335184372088832";
         let expected = false;
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        assert_eq!(is_prime(a, seed), expected);
+        assert_eq!(is_prime(a, test_seed()), expected);
     }
 }
 
@@ -576,29 +566,25 @@ mod test_generate_prime {
 
     #[test]
     fn miniscule_prime() {
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        let prime = generate_prime(2, 1000, seed);
+        let prime = generate_prime(2, 1000, test_seed());
         assert_eq!(prime, Some("3".to_string()));
     }
 
     #[test]
     fn tiny_prime() {
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        let prime = generate_prime(8, 1000, seed);
+        let prime = generate_prime(8, 1000, test_seed());
         assert_eq!(prime, Some("193".to_string()));
     }
 
     #[test]
     fn medium_prime() {
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        let prime = generate_prime(64, 1000, seed);
+        let prime = generate_prime(64, 1000, test_seed());
         assert_eq!(prime, Some("10057321802802702503".to_string()));
     }
 
     #[test]
     fn large_prime() {
-        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        let prime = generate_prime(256, 1000, seed);
+        let prime = generate_prime(256, 1000, test_seed());
         assert_eq!(prime, Some("91585194753718779240055081770127290880143452499556598946529982336565467053363".to_string()));
     }
 }
@@ -609,4 +595,10 @@ fn from_slice(bytes: &[u8]) -> [u8; 32] {
     let bytes = &bytes[..array.len()]; // panics if not enough data
     array.copy_from_slice(bytes); 
     array
+}
+
+// Fixes: https://github.com/ColbyCypherSociety/ChatDemo/issues/21
+// Ref: https://stackoverflow.com/questions/46378637/how-to-make-a-variable-with-a-scope-lifecycle-for-all-test-functions-in-a-rust-t
+fn test_seed() -> Vec<u8> {
+    vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 }
