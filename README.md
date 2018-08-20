@@ -24,3 +24,14 @@ npm run client
 ```shell
 npm run server
 ```
+
+### Test
+```shell
+cargo test
+```
+
+## References
+
+The underlying crypto makes heavy use of the crates in [rust-num](https://github.com/rust-num), specifically [num-bigint](https://github.com/rust-num/num-bigint).
+
+The randomness for the crypto uses the rust [rand](https://crates.io/crates/rand) crate.

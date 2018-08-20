@@ -1,6 +1,8 @@
+use num;
 use num::bigint::{BigInt, RandBigInt, ToBigInt};
 use num_traits::{One, Zero};
-use rand;
+use wasm_bindgen::prelude::*;
+use rand::{SeedableRng, StdRng};
 
 static SMALL_PRIMES: &'static [i32] = &[
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
@@ -352,7 +354,7 @@ mod test_mod_inverse {
 }
 
 // Check out: https://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test
-pub fn miller_rabin(n: &str) -> bool {
+pub fn miller_rabin(n: &str, seed: Vec<u8>) -> bool {
     let zero: BigInt = StringToNumber!("0");
     let one: BigInt = StringToNumber!("1");
     let two: BigInt = StringToNumber!("2");
@@ -376,9 +378,10 @@ pub fn miller_rabin(n: &str) -> bool {
         d /= &two;
     }
 
+    let mut rng: StdRng = SeedableRng::from_seed(from_slice(&seed));
+    
     // 50 here is a parameter for accuracy
     for _ in 0..50 {
-        let mut rng = rand::thread_rng();
         let a_num = rng.gen_bigint_range(&two, &n_minus_one);
         let a_str = NumberToString!(&a_num);
 
@@ -416,7 +419,7 @@ pub fn miller_rabin(n: &str) -> bool {
     true
 }
 
-pub fn is_prime(n: &str) -> bool {
+pub fn is_prime(n: &str, seed: Vec<u8>) -> bool {
     let zero = StringToNumber!("0");
     let one = StringToNumber!("1");
     let two = StringToNumber!("2");
@@ -453,7 +456,7 @@ pub fn is_prime(n: &str) -> bool {
         }
     }
 
-    miller_rabin(n)
+    miller_rabin(n, seed)
 }
 
 #[cfg(test)]
@@ -464,69 +467,146 @@ mod test_is_prime_and_rabin_miller {
     fn miniscule_prime() {
         let a = "3";
         let expected = true;
-        assert_eq!(is_prime(a), expected);
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        assert_eq!(is_prime(a, seed), expected);
     }
 
     #[test]
     fn miniscule_not_prime() {
         let a = "4";
         let expected = false;
-        assert_eq!(is_prime(a), expected);
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        assert_eq!(is_prime(a, seed), expected);
     }
 
     #[test]
     fn tiny_prime() {
         let a = "1049";
         let expected = true;
-        assert_eq!(is_prime(a), expected);
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        assert_eq!(is_prime(a, seed), expected);
     }
 
     #[test]
     fn tiny_not_prime() {
         let a = "1050";
         let expected = false;
-        assert_eq!(is_prime(a), expected);
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        assert_eq!(is_prime(a, seed), expected);
     }
 
     #[test]
     fn small_prime() {
         let a = "100103";
         let expected = true;
-        assert_eq!(is_prime(a), expected);
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        assert_eq!(is_prime(a, seed), expected);
     }
 
     #[test]
     fn small_not_prime() {
         let a = "100105";
         let expected = false;
-        assert_eq!(is_prime(a), expected);
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        assert_eq!(is_prime(a, seed), expected);
     }
 
     #[test]
     fn medium_prime() {
         let a = "100000015333";
         let expected = true;
-        assert_eq!(is_prime(a), expected);
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        assert_eq!(is_prime(a, seed), expected);
     }
 
     #[test]
     fn medium_not_prime() {
         let a = "100000015334";
         let expected = false;
-        assert_eq!(is_prime(a), expected);
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        assert_eq!(is_prime(a, seed), expected);
     }
 
     #[test]
     fn large_prime() {
         let a = "335184372088831";
         let expected = true;
-        assert_eq!(is_prime(a), expected);
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        assert_eq!(is_prime(a, seed), expected);
     }
 
     #[test]
     fn large_not_prime() {
         let a = "335184372088832";
         let expected = false;
-        assert_eq!(is_prime(a), expected);
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        assert_eq!(is_prime(a, seed), expected);
     }
+}
+
+#[wasm_bindgen]
+pub fn generate_prime(bits: usize, tries: usize, seed: Vec<u8>) -> Option<String> {
+    let bits_minus_one = bits - 1;
+    let x = num::pow(StringToNumber!("2"), bits_minus_one);
+    let y = StringToNumber!("2") * &x;
+
+    let mut rng: StdRng = SeedableRng::from_seed(from_slice(&seed));
+
+    for _ in 0..tries {
+        let mut n = rng.gen_bigint_range(&x, &y);
+
+        if &n % StringToNumber!("2") == StringToNumber!("0") {
+            n += 1;
+        }
+
+        let num_str = &NumberToString!(&n);
+        let q = is_prime(num_str, seed.clone());
+
+        if q {
+            return Some(NumberToString!(n));
+        }
+    }
+
+    None
+}
+
+#[cfg(test)]
+mod test_generate_prime {
+    use super::*;
+
+    #[test]
+    fn miniscule_prime() {
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        let prime = generate_prime(2, 1000, seed);
+        assert_eq!(prime, Some("3".to_string()));
+    }
+
+    #[test]
+    fn tiny_prime() {
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        let prime = generate_prime(8, 1000, seed);
+        assert_eq!(prime, Some("193".to_string()));
+    }
+
+    #[test]
+    fn medium_prime() {
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        let prime = generate_prime(64, 1000, seed);
+        assert_eq!(prime, Some("10057321802802702503".to_string()));
+    }
+
+    #[test]
+    fn large_prime() {
+        let seed: Vec<u8> = vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        let prime = generate_prime(256, 1000, seed);
+        assert_eq!(prime, Some("91585194753718779240055081770127290880143452499556598946529982336565467053363".to_string()));
+    }
+}
+
+// Ref: https://stackoverflow.com/questions/29570607/is-there-a-good-way-to-convert-a-vect-to-an-array
+fn from_slice(bytes: &[u8]) -> [u8; 32] {
+    let mut array = [0; 32];
+    let bytes = &bytes[..array.len()]; // panics if not enough data
+    array.copy_from_slice(bytes); 
+    array
 }
