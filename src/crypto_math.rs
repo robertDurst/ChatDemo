@@ -1,6 +1,6 @@
 use num;
-use num::bigint::{BigInt, RandBigInt, ToBigInt};
-use num_traits::{One, Zero};
+use num::bigint::{BigInt, RandBigInt, ToBigInt,};
+use num_traits::{One, Zero, ToPrimitive};
 use wasm_bindgen::prelude::*;
 use rand::{SeedableRng, StdRng};
 
@@ -733,8 +733,25 @@ impl Keypair {
     pub fn public_key_display_wasm(&self) -> String {
         format!("({}, {})", self.public.v, self.public.n)
     }
-}
 
+    pub fn decrypt(&self, ciphertext: Vec<String>) -> String {
+        let private_key = StringToNumber!(&self.private.v);
+        let modulus = StringToNumber!(&self.private.n);
+
+        let mut decrypted_values: Vec<char> = Vec::new();
+
+        for c in ciphertext.iter() {
+            let to_decrypt = StringToNumber!(c);
+            let decrypted = to_decrypt.modpow(&private_key, &modulus); 
+            let decrypted_u8 = decrypted.to_u8().unwrap();
+            let decrypted_char = decrypted_u8 as char;
+
+            decrypted_values.push(decrypted_char)
+        }
+
+        decrypted_values.iter().collect()
+    }
+}
 
 #[cfg(test)]
 mod test_generate_key{
@@ -756,9 +773,48 @@ mod test_generate_key{
 
         // Message and ciphertext
         let plaintext = StringToNumber!("72");
-        let ciphertext =  plaintext.modpow(&e, &n);
+        let ciphertext = plaintext.modpow(&e, &n);
         
         let decrypted = ciphertext.modpow(&d, &n);
+        assert_eq!(plaintext, decrypted);
+    }
+}
+
+pub fn encrypt(m: &str, e: &str, n: &str) -> Vec<String> {
+    let public_key = StringToNumber!(e);
+    let modulus = StringToNumber!(n);
+
+    let mut encrypted_values: Vec<String> = Vec::new();
+
+    for c in m.bytes() {
+        let to_encrypt = StringToNumber!(c.to_string());
+        let encrypted = to_encrypt.modpow(&public_key, &modulus);
+        let encrypted_string = NumberToString!(encrypted);
+
+        encrypted_values.push(encrypted_string);
+    }
+
+    encrypted_values
+}
+
+#[cfg(test)]
+mod test_encrypt_decrypt{
+    use super::*;
+
+    #[test]
+    fn complete_encrypt_and_decrypt() {
+        // You need two different seeds (p and q must be different)
+        let seed_one = vec![10,16,51,42,123,31,212,31,233,15,9,7,41,32,4,3,144,122,1,35,1,13,55,23,1,33,1,1,1,1,2,1];
+        let seed_two = test_seed();
+
+        // Generate a keypair
+        let k = Keypair::new(seed_one, seed_two);
+
+        // Message and ciphertext
+        let plaintext = "HelloWorld!";
+        let ciphertext = encrypt(plaintext, &k.public.v, &k.public.n);
+        let decrypted = k.decrypt(ciphertext);
+
         assert_eq!(plaintext, decrypted);
     }
 }
