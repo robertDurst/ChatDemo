@@ -73,6 +73,36 @@ function passStringToWasm(arg) {
     getUint8Memory().set(buf, ptr);
     return [ptr, buf.length];
 }
+/**
+* @param {string} arg0
+* @param {string} arg1
+* @param {string} arg2
+* @returns {string}
+*/
+export function encrypt(arg0, arg1, arg2) {
+    const [ptr0, len0] = passStringToWasm(arg0);
+    const [ptr1, len1] = passStringToWasm(arg1);
+    const [ptr2, len2] = passStringToWasm(arg2);
+    const retptr = globalArgumentPtr();
+    try {
+        wasm.encrypt(retptr, ptr0, len0, ptr1, len1, ptr2, len2);
+        const mem = getUint32Memory();
+        const rustptr = mem[retptr / 4];
+        const rustlen = mem[retptr / 4 + 1];
+        
+        const realRet = getStringFromWasm(rustptr, rustlen).slice();
+        wasm.__wbindgen_free(rustptr, rustlen * 1);
+        return realRet;
+        
+        
+    } finally {
+        wasm.__wbindgen_free(ptr0, len0 * 1);
+        wasm.__wbindgen_free(ptr1, len1 * 1);
+        wasm.__wbindgen_free(ptr2, len2 * 1);
+        
+    }
+    
+}
 
 export function __wbg_alert_203900472737c5ba(arg0, arg1) {
     let varg0 = getStringFromWasm(arg0, arg1);
@@ -113,11 +143,13 @@ export class Keypair {
     }
     /**
     * @param {Uint8Array} arg0
+    * @param {Uint8Array} arg1
     * @returns {Keypair}
     */
-    static new(arg0) {
+    static new(arg0, arg1) {
         const [ptr0, len0] = passArray8ToWasm(arg0);
-        return Keypair.__construct(wasm.keypair_new(ptr0, len0));
+        const [ptr1, len1] = passArray8ToWasm(arg1);
+        return Keypair.__construct(wasm.keypair_new(ptr0, len0, ptr1, len1));
     }
     /**
     * @returns {string}
@@ -137,34 +169,32 @@ export class Keypair {
         return realRet;
         
     }
-}
-/**
-*/
-export class Keydouble {
-    
-    static __construct(ptr) {
-        return new Keydouble(ptr);
-    }
-    
-    constructor(ptr) {
-        this.ptr = ptr;
-    }
-    
-    free() {
-        const ptr = this.ptr;
-        this.ptr = 0;
-        wasm.__wbg_keydouble_free(ptr);
-    }
     /**
     * @param {string} arg0
-    * @param {string} arg1
-    * @param {boolean} arg2
-    * @returns {Keydouble}
+    * @returns {string}
     */
-    static new(arg0, arg1, arg2) {
+    decrypt(arg0) {
+        if (this.ptr === 0) {
+            throw new Error('Attempt to use a moved value');
+        }
         const [ptr0, len0] = passStringToWasm(arg0);
-        const [ptr1, len1] = passStringToWasm(arg1);
-        return Keydouble.__construct(wasm.keydouble_new(ptr0, len0, ptr1, len1, arg2 ? 1 : 0));
+        const retptr = globalArgumentPtr();
+        try {
+            wasm.keypair_decrypt(retptr, this.ptr, ptr0, len0);
+            const mem = getUint32Memory();
+            const rustptr = mem[retptr / 4];
+            const rustlen = mem[retptr / 4 + 1];
+            
+            const realRet = getStringFromWasm(rustptr, rustlen).slice();
+            wasm.__wbindgen_free(rustptr, rustlen * 1);
+            return realRet;
+            
+            
+        } finally {
+            wasm.__wbindgen_free(ptr0, len0 * 1);
+            
+        }
+        
     }
 }
 

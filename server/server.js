@@ -8,7 +8,7 @@ io.on('connection', function(socket){
   // For announcing the connection of new users by public key
   socket.on('REGISTER', function(data){
     console.log("User joined:", data);
-    socket.emit('MESSAGE', "Welcome!");
+    socket.emit('MESSAGE', `Welcome!\nYour public key: ${data}`);
     socket.broadcast.emit("NEW_REGISTRATION", data);
   });
 

@@ -12,12 +12,15 @@ class Chat extends React.Component {
           messages: [],
           message: '',
           encrypt: '',
+          decrypt: '',
         };
 
         this.send = this.send.bind(this);
         this.encrypt = this.encrypt.bind(this);
+        this.decrypt = this.decrypt.bind(this);
         this.onChangeMessage = this.onChangeMessage.bind(this);
         this.onChangeEncrypt = this.onChangeEncrypt.bind(this);
+        this.onChangeDecrypt = this.onChangeDecrypt.bind(this);
       }
 
     async componentDidMount() {
@@ -85,6 +88,7 @@ class Chat extends React.Component {
         this.setState({
             socket,
             keypair,
+            crypto,
         })
     }
 
@@ -117,10 +121,40 @@ class Chat extends React.Component {
     }
 
     encrypt() {
-        this.state.socket.emit('MESSAGE', this.state.encrypt);
+        try {
+            const keypair = this.state.encrypt.replace(/\(|\)/g, "").split(",");
+            const e = keypair[0].trim();
+            const n = keypair[1].trim();
+            const encrypted = this.state.crypto.encrypt(this.state.message, e, n);
+            
+            this.setState({
+                encrypt: '',
+                message: encrypted,
+            });
+        } catch(err) {
+            this.setState({
+                encrypt: 'Failure to encrypt',
+            });
+        }
+    }
+
+    onChangeDecrypt(e) {
         this.setState({
-            encrypt: '',
-        });
+            decrypt: e.target.value,
+        })
+    }
+
+    decrypt() {
+        try {
+            const decrypted = this.state.keypair.decrypt(this.state.decrypt);
+            this.setState({
+                decrypt: decrypted,
+            });
+        } catch(err) {
+            this.setState({
+                decrypt: 'Unsuccessful decryption.',
+            });
+        }
     }
 
     render() {
@@ -137,6 +171,10 @@ class Chat extends React.Component {
                     <div className="inputbox">
                         <input autoComplete="off" onChange={this.onChangeEncrypt} value={this.state.encrypt}/>
                         <button onClick={this.encrypt} type="button">Encrypt</button>
+                    </div>
+                    <div className="inputbox">
+                        <input autoComplete="off" onChange={this.onChangeDecrypt} value={this.state.decrypt}/>
+                        <button onClick={this.decrypt} type="button">Decrypt</button>
                     </div>
                 </form>
             </div>
