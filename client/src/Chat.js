@@ -28,7 +28,7 @@ class Chat extends React.Component {
         const seedTwo = this.generateSeed();
         const keypair = crypto.Keypair.new(seedOne, seedTwo);
 
-        const socket = require('socket.io-client')('http://localhost:3001');
+        const socket = require('socket.io-client')('https://enigmatic-savannah-85282.herokuapp.com/');
 
         // Stupid hack for accessing this in the socket events
         const obj = this;
@@ -62,8 +62,6 @@ class Chat extends React.Component {
             ) {
                 const plaintext = data.split(":\n")[1].slice(1).trim();
                 try {
-                    console.log("HERE")
-                    console.log(plaintext)
                     const decrypted = obj.state.keypair.decrypt(plaintext);
                     alert("You've got mail!");
                     temp.push({
@@ -72,7 +70,6 @@ class Chat extends React.Component {
                         color: 'white',
                     });
                 } catch(err) {
-                    console.log(err)
                     temp.push({
                         message: data,
                         bgColor: 'white',
@@ -219,7 +216,7 @@ class Chat extends React.Component {
         return (
             <div>
                 <ul id="messages">
-                    {this.state.messages.map(x => <li tabindex="1" style={{backgroundColor: x.bgColor, color: x.color}}>{x.message}</li>)}
+                    {this.state.messages.map(x => <li style={{backgroundColor: x.bgColor, color: x.color}}>{x.message}</li>)}
                 </ul>
                 <form action="">
                     <div className="inputbox">
