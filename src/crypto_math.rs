@@ -191,6 +191,56 @@ mod test_gcd {
     }
 }
 
+pub fn lcm(a: &str, b: &str) -> String {
+    let mut x = StringToNumber!(a);
+    let mut y = StringToNumber!(b);
+
+    let numerator = &x * &y;
+    let denominator = StringToNumber!(gcd(a, b));
+
+    let lcm = numerator / denominator;
+
+    NumberToString!(lcm)
+}
+
+#[cfg(test)]
+mod test_lcm {
+    use super::*;
+
+    #[test]
+    fn miniscule() {
+        let a = "5";
+        let b = "2";
+        let expected = "10";
+        assert_eq!(lcm(a, b), expected);
+    }
+
+    #[test]
+    fn tiny() {
+        let a = "15";
+        let b = "20";
+        let expected = "60";
+        assert_eq!(lcm(a, b), expected);
+    }
+
+    #[test]
+    fn small() {
+        let a = "299429203";
+        let b = "827382738";
+        let expected = "247742553815297814";
+        assert_eq!(lcm(a, b), expected);
+    }
+
+    #[test]
+    fn medium() {
+        let a = "1672976127961212891";
+        let b = "3378278237328723873";
+        let expected = "1883926281553946627336368887435682281";
+        assert_eq!(lcm(a, b), expected);
+    }
+}
+
+
 // Based on pseudocode from: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
 pub fn extended_gcd(a: &str, b: &str) -> (String, String) {
     let mut r = StringToNumber!(a);
