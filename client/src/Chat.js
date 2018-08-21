@@ -12,15 +12,12 @@ class Chat extends React.Component {
           messages: [],
           message: '',
           encrypt: '',
-          decrypt: '',
         };
 
         this.send = this.send.bind(this);
         this.encrypt = this.encrypt.bind(this);
-        this.decrypt = this.decrypt.bind(this);
         this.onChangeMessage = this.onChangeMessage.bind(this);
         this.onChangeEncrypt = this.onChangeEncrypt.bind(this);
-        this.onChangeDecrypt = this.onChangeDecrypt.bind(this);
       }
 
     async componentDidMount() {
@@ -42,7 +39,13 @@ class Chat extends React.Component {
             socket.emit('REGISTER', keypair.public_key_display_wasm());
 
             const temp = obj.state.messages;
-            temp.push("Connected successfully to server.");
+
+            temp.push({
+                message: "Connected successfully to server.",
+                bgColor: 'white',
+                color: 'green',
+            });
+
             obj.setState({
                 messages: temp,
             });
@@ -51,16 +54,69 @@ class Chat extends React.Component {
         // For displaying all chat room messages
         socket.on('MESSAGE', function(data){
             const temp = obj.state.messages;
-            temp.push(data);
+
+            if (
+                data.includes('(') && 
+                data.includes(')') && 
+                data.split(":\n")[0] == `[${keypair.public_key_display_wasm()}]`
+            ) {
+                const plaintext = data.split(":\n")[1].trim();
+                try {
+                    console.log("HERE")
+                    console.log(plaintext)
+                    const decrypted = obj.state.keypair.decrypt(plaintext);
+                    alert("You've got mail!");
+                    temp.push({
+                        message: `${decrypted}`,
+                        bgColor: 'green',
+                        color: 'white',
+                    });
+                } catch(err) {
+                    console.log(err)
+                    temp.push({
+                        message: data,
+                        bgColor: 'white',
+                        color: 'gray',
+                    });
+                }
+            } else {
+                temp.push({
+                    message: data,
+                    bgColor: 'white',
+                    color: 'gray',
+                });
+            }
             obj.setState({
                 messages: temp,
             });
         });
 
+         // For displaying welcome message
+         socket.on('WELCOME', function(data){
+            const temp = obj.state.messages;
+
+            temp.push({
+                message: data,
+                bgColor: 'gray',
+                color: 'black',
+            });
+            
+            obj.setState({
+                messages: temp,
+            });
+        });
+
+
         // For displaying new registration when new users connect
         socket.on('NEW_REGISTRATION', function(data){
             const temp = obj.state.messages;
-            temp.push(`User joined: ${data}`);
+
+            temp.push({
+                message: `User joined: ${data}`,
+                bgColor: 'yellow',
+                color: 'black',
+            });
+            
             obj.setState({
                 messages: temp,
             });
@@ -69,7 +125,13 @@ class Chat extends React.Component {
         // For displaying when new users disconnect
         socket.on('DISCONNECTED', function(data){
             const temp = obj.state.messages;
-            temp.push(`User left: ${data}`);
+            
+            temp.push({
+                message: `User left: ${data}`,
+                bgColor: 'red',
+                color: 'white',
+            });
+
             obj.setState({
                 messages: temp,
             });
@@ -79,7 +141,12 @@ class Chat extends React.Component {
         socket.on('disconnect', function(){
             socket.emit('DISCONNECTED', 'name')
             const temp = obj.state.messages;
-            temp.push("Disconnected from server.");
+            
+            temp.push({
+                message: `You disconnected from server.`,
+                bgColor: 'pink',
+            });
+
             obj.setState({
                 messages: temp,
             });
@@ -129,7 +196,7 @@ class Chat extends React.Component {
             
             this.setState({
                 encrypt: '',
-                message: encrypted,
+                message: `[${this.state.encrypt}]:\n${encrypted}`,
             });
         } catch(err) {
             this.setState({
@@ -138,30 +205,11 @@ class Chat extends React.Component {
         }
     }
 
-    onChangeDecrypt(e) {
-        this.setState({
-            decrypt: e.target.value,
-        })
-    }
-
-    decrypt() {
-        try {
-            const decrypted = this.state.keypair.decrypt(this.state.decrypt);
-            this.setState({
-                decrypt: decrypted,
-            });
-        } catch(err) {
-            this.setState({
-                decrypt: 'Unsuccessful decryption.',
-            });
-        }
-    }
-
     render() {
         return (
             <div>
                 <ul id="messages">
-                    {this.state.messages.map(x => <li>{x}</li>)}
+                    {this.state.messages.map(x => <li style={{backgroundColor: x.bgColor, color: x.color}}>{x.message}</li>)}
                 </ul>
                 <form action="">
                     <div className="inputbox">
@@ -171,10 +219,6 @@ class Chat extends React.Component {
                     <div className="inputbox">
                         <input autoComplete="off" onChange={this.onChangeEncrypt} value={this.state.encrypt}/>
                         <button onClick={this.encrypt} type="button">Encrypt</button>
-                    </div>
-                    <div className="inputbox">
-                        <input autoComplete="off" onChange={this.onChangeDecrypt} value={this.state.decrypt}/>
-                        <button onClick={this.decrypt} type="button">Decrypt</button>
                     </div>
                 </form>
             </div>
