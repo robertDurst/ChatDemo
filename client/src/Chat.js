@@ -136,7 +136,7 @@ class Chat extends React.Component {
 
         // Actions for when disconnecting from server
         socket.on('disconnect', function(){
-            socket.emit('DISCONNECTED', 'name')
+            socket.emit('DISCONNECTED', this.state.keypair.public_key_display_wasm())
             const temp = obj.state.messages;
             
             temp.push({
