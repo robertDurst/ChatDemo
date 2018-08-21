@@ -654,6 +654,7 @@ fn test_seed() -> Vec<u8> {
 }
 
 #[wasm_bindgen]
+#[derive(Debug)]
 pub struct Keydouble {
     v: String,
     n: String,
@@ -672,6 +673,7 @@ impl Keydouble {
 }
 
 #[wasm_bindgen]
+#[derive(Debug)]
 pub struct Keypair {
     public: Keydouble,
     private: Keydouble,
@@ -679,40 +681,48 @@ pub struct Keypair {
 
 #[wasm_bindgen]
 impl Keypair {
-    pub fn new(seed: Vec<u8>) -> Keypair {
+    pub fn new(seed_one: Vec<u8>, seed_two: Vec<u8>) -> Keypair {
         let one = StringToNumber!("1");
         let two = StringToNumber!("2");
 
         // Hardcoded to 64-bits for now
-        let q_str = generate_prime(64, 1000, seed.clone()).unwrap();
+        let q_str = generate_prime(8, 1000, seed_one.clone()).unwrap();
         let q_num = StringToNumber!(q_str);
 
         // Hardcoded to 64-bits for now
-        let p_str = generate_prime(64, 1000, seed.clone()).unwrap();
+        let p_str = generate_prime(8, 1000, seed_two.clone()).unwrap();
         let p_num = StringToNumber!(p_str);
 
         let n_num = &p_num * &q_num;
         let n_str = NumberToString!(n_num);
 
-        let phi_num = (&p_num - &one) * (&q_num - &one);
-        let phi_str = NumberToString!(&phi_num);
+        let p_minus_one_str = NumberToString!(&p_num - &one);
+        let q_minus_one_str = NumberToString!(&q_num - &one);
 
-        let mut eFound = false;
+        let phi_str = lcm(&p_minus_one_str, &q_minus_one_str);
+        let phi_num = StringToNumber!(&phi_str);
 
-        let mut rng: StdRng = SeedableRng::from_seed(from_slice(&seed));
+        let mut e_found = false;
+
+        let mut rng: StdRng = SeedableRng::from_seed(from_slice(&seed_one));
 
         let mut e_str = String::default();
 
-        while !eFound {
+        while !e_found {
             let e_num = rng.gen_bigint_range(&two, &(&phi_num - &two));
 
             e_str = NumberToString!(&e_num);
             if gcd(&e_str, &phi_str) == "1".to_string() {
-                eFound = true;
+                e_found = true;
             }
         }
 
-        let d_str = mod_inverse(&e_str, &phi_str).unwrap();
+        let mut d_str = mod_inverse(&e_str, &phi_str).unwrap();
+
+        if StringToNumber!(d_str) < StringToNumber!("0") {
+            let d_num = &n_num + StringToNumber!(d_str);
+            d_str = NumberToString!(d_num);
+        }
 
         Keypair {
             public: Keydouble::new(e_str, n_str.clone(), false),
@@ -722,5 +732,33 @@ impl Keypair {
 
     pub fn public_key_display_wasm(&self) -> String {
         format!("({}, {})", self.public.v, self.public.n)
+    }
+}
+
+
+#[cfg(test)]
+mod test_generate_key{
+    use super::*;
+
+    #[test]
+    fn works_with_simple_encrypt_decrypt() {
+        // You need two different seeds (p and q must be different)
+        let seed_one = vec![10,16,51,42,123,31,212,31,233,15,9,7,41,32,4,3,144,122,1,35,1,13,55,23,1,33,1,1,1,1,2,1];
+        let seed_two = test_seed();
+
+        // Generate a keypair
+        let k = Keypair::new(seed_one, seed_two);
+
+        // Capture all the variables for encryption and decryption
+        let e = StringToNumber!(k.public.v);
+        let d = StringToNumber!(k.private.v);
+        let n = StringToNumber!(k.public.n);
+
+        // Message and ciphertext
+        let plaintext = StringToNumber!("72");
+        let ciphertext =  plaintext.modpow(&e, &n);
+        
+        let decrypted = ciphertext.modpow(&d, &n);
+        assert_eq!(plaintext, decrypted);
     }
 }

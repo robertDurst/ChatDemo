@@ -24,8 +24,9 @@ class Chat extends React.Component {
         // Call the rust code from js
         const crypto = await js;
 
-        const seed = this.generateSeed();
-        const keypair = crypto.Keypair.new(seed);
+        const seedOne = this.generateSeed();
+        const seedTwo = this.generateSeed();
+        const keypair = crypto.Keypair.new(seedOne, seedTwo);
 
         const socket = require('socket.io-client')('http://localhost:3001');
 
