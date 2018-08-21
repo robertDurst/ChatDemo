@@ -159,6 +159,16 @@ class Chat extends React.Component {
         })
     }
 
+    componentDidUpdate() {
+        this.scrollToBottom();
+    }
+
+    // Thanks to StackOverFlow (@metakermit) for this one!
+    // https://stackoverflow.com/questions/37620694/how-to-scroll-to-bottom-in-react
+    scrollToBottom = () => {
+        this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+    }
+
     generateSeed() {
         let seed = [];
         for (var i = 0; i < 32; i ++) {
@@ -209,7 +219,7 @@ class Chat extends React.Component {
         return (
             <div>
                 <ul id="messages">
-                    {this.state.messages.map(x => <li style={{backgroundColor: x.bgColor, color: x.color}}>{x.message}</li>)}
+                    {this.state.messages.map(x => <li tabindex="1" style={{backgroundColor: x.bgColor, color: x.color}}>{x.message}</li>)}
                 </ul>
                 <form action="">
                     <div className="inputbox">
@@ -221,6 +231,9 @@ class Chat extends React.Component {
                         <button onClick={this.encrypt} type="button">Encrypt</button>
                     </div>
                 </form>
+                <div style={{ float:"left", clear: "both" }}
+                    ref={(el) => { this.messagesEnd = el; }}>
+                </div>
             </div>
         );
     }
