@@ -5,7 +5,7 @@
 }
 
 body { 
-    font: 30px Helvetica, Arial; 
+    font: 25px Helvetica, Arial; 
 }
 
 form { 
@@ -20,7 +20,7 @@ form input {
     padding: 10px; 
     width: 90%;
     margin-right: .5%; 
-    font: 30px Helvetica, Arial;
+    font: 12px Helvetica, Arial;
 }
 
 form button {
@@ -28,7 +28,7 @@ form button {
     background: rgb(130, 224, 255); 
     border: none;
     padding: 10px; 
-    font: 30px Helvetica, Arial;
+    font: 12px Helvetica, Arial;
 }
 
 #messages { 
