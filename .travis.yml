@@ -3,6 +3,6 @@ before_script:
   - rustup component add rustfmt-preview
 script:
   - cargo build
-  - cargo test -- --test-threads=3
+  - cargo test
 rust: 
- - nightly-2018-07-30
+ - nightly
