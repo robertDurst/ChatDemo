@@ -670,12 +670,12 @@ impl Keypair {
         let one = StringToNumber!("1");
         let two = StringToNumber!("2");
 
-        // Hardcoded to 64-bits for now
-        let q_str = generate_prime(8, 1000, seed_one.clone()).unwrap();
+        // Hardcoded to 256-bits for now
+        let q_str = generate_prime(256, 1000, seed_one.clone()).unwrap();
         let q_num = StringToNumber!(q_str);
 
-        // Hardcoded to 64-bits for now
-        let p_str = generate_prime(8, 1000, seed_two.clone()).unwrap();
+        // Hardcoded to 256-bits for now
+        let p_str = generate_prime(256, 1000, seed_two.clone()).unwrap();
         let p_num = StringToNumber!(p_str);
 
         let n_num = &p_num * &q_num;
@@ -720,13 +720,13 @@ impl Keypair {
         format!("({}, {})", self.e, self.n)
     }
 
-    pub fn decrypt(&self, ciphertext: Vec<String>) -> String {
+    pub fn decrypt(&self, ciphertext: &str) -> String {
         let private_key = StringToNumber!(&self.d);
         let modulus = StringToNumber!(&self.n);
 
         let mut decrypted_values: Vec<char> = Vec::new();
 
-        for c in &ciphertext {
+        for c in  ciphertext[1..].split(",") {
             let to_decrypt = StringToNumber!(c);
             let decrypted = to_decrypt.modpow(&private_key, &modulus); 
             let decrypted_u8 = decrypted.to_u8().unwrap();
@@ -766,18 +766,18 @@ mod test_generate_key{
     }
 }
 
-pub fn encrypt(m: &str, e: &str, n: &str) -> Vec<String> {
+#[wasm_bindgen]
+pub fn encrypt(m: &str, e: &str, n: &str) -> String {
     let public_key = StringToNumber!(e);
     let modulus = StringToNumber!(n);
 
-    let mut encrypted_values: Vec<String> = Vec::new();
+    let mut encrypted_values = String::from("");
 
     for c in m.bytes() {
         let to_encrypt = StringToNumber!(c.to_string());
         let encrypted = to_encrypt.modpow(&public_key, &modulus);
-        let encrypted_string = NumberToString!(encrypted);
 
-        encrypted_values.push(encrypted_string);
+        encrypted_values = format!("{},{}", encrypted_values, NumberToString!(encrypted));
     }
 
     encrypted_values
@@ -799,7 +799,7 @@ mod test_encrypt_decrypt{
         // Message and ciphertext
         let plaintext = "HelloWorld!";
         let ciphertext = encrypt(plaintext, &k.e, &k.n);
-        let decrypted = k.decrypt(ciphertext);
+        let decrypted = k.decrypt(&ciphertext);
 
         assert_eq!(plaintext, decrypted);
     }
