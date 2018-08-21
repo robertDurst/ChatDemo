@@ -192,8 +192,8 @@ mod test_gcd {
 }
 
 pub fn lcm(a: &str, b: &str) -> String {
-    let mut x = StringToNumber!(a);
-    let mut y = StringToNumber!(b);
+    let x = StringToNumber!(a);
+    let y = StringToNumber!(b);
 
     let numerator = &x * &y;
     let denominator = StringToNumber!(gcd(a, b));
@@ -655,28 +655,13 @@ fn test_seed() -> Vec<u8> {
 
 #[wasm_bindgen]
 #[derive(Debug)]
-pub struct Keydouble {
-    v: String,
-    n: String,
-    isPrivate: bool,
-}
-
-#[wasm_bindgen]
-impl Keydouble {
-    pub fn new(v: String, n: String, isPrivate: bool) -> Keydouble {
-        Keydouble {
-            v,
-            n,
-            isPrivate,
-        }
-    }
-}
-
-#[wasm_bindgen]
-#[derive(Debug)]
 pub struct Keypair {
-    public: Keydouble,
-    private: Keydouble,
+    // Public key
+    e: String,
+    // Private key
+    d: String,
+    // Modulo (both public and private)
+    n: String,
 }
 
 #[wasm_bindgen]
@@ -712,7 +697,7 @@ impl Keypair {
             let e_num = rng.gen_bigint_range(&two, &(&phi_num - &two));
 
             e_str = NumberToString!(&e_num);
-            if gcd(&e_str, &phi_str) == "1".to_string() {
+            if gcd(&e_str, &phi_str) == String::from("1") {
                 e_found = true;
             }
         }
@@ -725,22 +710,23 @@ impl Keypair {
         }
 
         Keypair {
-            public: Keydouble::new(e_str, n_str.clone(), false),
-            private: Keydouble::new(d_str, n_str.clone(), true),
+            e: e_str,
+            d: d_str,
+            n: n_str,
         }
     }
 
     pub fn public_key_display_wasm(&self) -> String {
-        format!("({}, {})", self.public.v, self.public.n)
+        format!("({}, {})", self.e, self.n)
     }
 
     pub fn decrypt(&self, ciphertext: Vec<String>) -> String {
-        let private_key = StringToNumber!(&self.private.v);
-        let modulus = StringToNumber!(&self.private.n);
+        let private_key = StringToNumber!(&self.d);
+        let modulus = StringToNumber!(&self.n);
 
         let mut decrypted_values: Vec<char> = Vec::new();
 
-        for c in ciphertext.iter() {
+        for c in &ciphertext {
             let to_decrypt = StringToNumber!(c);
             let decrypted = to_decrypt.modpow(&private_key, &modulus); 
             let decrypted_u8 = decrypted.to_u8().unwrap();
@@ -767,9 +753,9 @@ mod test_generate_key{
         let k = Keypair::new(seed_one, seed_two);
 
         // Capture all the variables for encryption and decryption
-        let e = StringToNumber!(k.public.v);
-        let d = StringToNumber!(k.private.v);
-        let n = StringToNumber!(k.public.n);
+        let e = StringToNumber!(k.e);
+        let d = StringToNumber!(k.d);
+        let n = StringToNumber!(k.n);
 
         // Message and ciphertext
         let plaintext = StringToNumber!("72");
@@ -812,7 +798,7 @@ mod test_encrypt_decrypt{
 
         // Message and ciphertext
         let plaintext = "HelloWorld!";
-        let ciphertext = encrypt(plaintext, &k.public.v, &k.public.n);
+        let ciphertext = encrypt(plaintext, &k.e, &k.n);
         let decrypted = k.decrypt(ciphertext);
 
         assert_eq!(plaintext, decrypted);
