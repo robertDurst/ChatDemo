@@ -60,7 +60,7 @@ class Chat extends React.Component {
                 data.includes(')') && 
                 data.split(":\n")[0] == `[${keypair.public_key_display_wasm()}]`
             ) {
-                const plaintext = data.split(":\n")[1].trim();
+                const plaintext = data.split(":\n")[1].slice(1).trim();
                 try {
                     console.log("HERE")
                     console.log(plaintext)
