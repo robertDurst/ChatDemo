@@ -1,4 +1,8 @@
 import React from 'react';
+
+// Needed because of some javascript weirdness
+import 'babel-polyfill';
+
 const js = import("../../crypto_module");
 
 class Chat extends React.Component {
@@ -16,11 +20,12 @@ class Chat extends React.Component {
         this.onChangeEncrypt = this.onChangeEncrypt.bind(this);
       }
 
-    componentDidMount() {
+    async componentDidMount() {
         // Call the rust code from js
-        js.then(js => {
-            js.greet("self");
-        });
+        const crypto = await js;
+
+        const seed = this.generateSeed();
+        const keypair = crypto.Keypair.new(seed);
 
         const socket = require('socket.io-client')('http://localhost:3001');
 
@@ -30,7 +35,7 @@ class Chat extends React.Component {
         // Actions for when connecting to server
         socket.on('connect', function(){
             // For registering with the channel on connect
-            socket.emit('REGISTER', "PUBLIC KEY");
+            socket.emit('REGISTER', keypair.public_key_display_wasm());
 
             const temp = obj.state.messages;
             temp.push("Connected successfully to server.");
@@ -78,7 +83,17 @@ class Chat extends React.Component {
 
         this.setState({
             socket,
+            keypair,
         })
+    }
+
+    generateSeed() {
+        let seed = [];
+        for (var i = 0; i < 32; i ++) {
+            seed.push(Math.floor(Math.random() * 100));
+        }
+
+        return seed;
     }
 
     onChangeMessage(e) {

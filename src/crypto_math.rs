@@ -602,3 +602,75 @@ fn from_slice(bytes: &[u8]) -> [u8; 32] {
 fn test_seed() -> Vec<u8> {
     vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 }
+
+#[wasm_bindgen]
+pub struct Keydouble {
+    v: String,
+    n: String,
+    isPrivate: bool,
+}
+
+#[wasm_bindgen]
+impl Keydouble {
+    pub fn new(v: String, n: String, isPrivate: bool) -> Keydouble {
+        Keydouble {
+            v,
+            n,
+            isPrivate,
+        }
+    }
+}
+
+#[wasm_bindgen]
+pub struct Keypair {
+    public: Keydouble,
+    private: Keydouble,
+}
+
+#[wasm_bindgen]
+impl Keypair {
+    pub fn new(seed: Vec<u8>) -> Keypair {
+        let one = StringToNumber!("1");
+        let two = StringToNumber!("2");
+
+        // Hardcoded to 64-bits for now
+        let q_str = generate_prime(64, 1000, seed.clone()).unwrap();
+        let q_num = StringToNumber!(q_str);
+
+        // Hardcoded to 64-bits for now
+        let p_str = generate_prime(64, 1000, seed.clone()).unwrap();
+        let p_num = StringToNumber!(p_str);
+
+        let n_num = &p_num * &q_num;
+        let n_str = NumberToString!(n_num);
+
+        let phi_num = (&p_num - &one) * (&q_num - &one);
+        let phi_str = NumberToString!(&phi_num);
+
+        let mut eFound = false;
+
+        let mut rng: StdRng = SeedableRng::from_seed(from_slice(&seed));
+
+        let mut e_str = String::default();
+
+        while !eFound {
+            let e_num = rng.gen_bigint_range(&two, &(&phi_num - &two));
+
+            e_str = NumberToString!(&e_num);
+            if gcd(&e_str, &phi_str) == "1".to_string() {
+                eFound = true;
+            }
+        }
+
+        let d_str = mod_inverse(&e_str, &phi_str).unwrap();
+
+        Keypair {
+            public: Keydouble::new(e_str, n_str.clone(), false),
+            private: Keydouble::new(d_str, n_str.clone(), true),
+        }
+    }
+
+    pub fn public_key_display_wasm(&self) -> String {
+        format!("({}, {})", self.public.v, self.public.n)
+    }
+}
