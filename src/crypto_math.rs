@@ -726,13 +726,14 @@ impl Keypair {
 
         let mut decrypted_values: Vec<char> = Vec::new();
 
-        for c in  ciphertext[1..].split(",") {
+        for c in  ciphertext.split(",") {
             let to_decrypt = StringToNumber!(c);
             let decrypted = to_decrypt.modpow(&private_key, &modulus); 
-            let decrypted_u8 = decrypted.to_u8().unwrap();
-            let decrypted_char = decrypted_u8 as char;
-
-            decrypted_values.push(decrypted_char)
+            let decrypted_u8 = decrypted.to_u8();
+            match decrypted_u8 {
+                Some(d_u8) => decrypted_values.push(d_u8 as char),
+                None => (),
+            }
         }
 
         decrypted_values.iter().collect()
@@ -799,7 +800,7 @@ mod test_encrypt_decrypt{
         // Message and ciphertext
         let plaintext = "HelloWorld!";
         let ciphertext = encrypt(plaintext, &k.e, &k.n);
-        let decrypted = k.decrypt(&ciphertext);
+        let decrypted = k.decrypt(&ciphertext[1..]);
 
         assert_eq!(plaintext, decrypted);
     }
