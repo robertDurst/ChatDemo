@@ -1,4 +1,5 @@
 # Chat Demo
+[![Build Status](https://travis-ci.org/ColbyCypherSociety/ChatDemo.svg?branch=master)](https://travis-ci.org/ColbyCypherSociety/ChatDemo)
 A live demonstration of private communication on a public channel.
 
 ## Prerequisites
