@@ -1,8 +1,10 @@
-use num;
-use num::bigint::{BigInt, RandBigInt, ToBigInt,};
-use num_traits::{One, Zero, ToPrimitive};
-use wasm_bindgen::prelude::*;
+use num::{
+    bigint::{BigInt, RandBigInt, ToBigInt},
+    pow,
+};
+use num_traits::ToPrimitive;
 use rand::{SeedableRng, StdRng};
+use wasm_bindgen::prelude::*;
 
 static SMALL_PRIMES: &'static [i32] = &[
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
@@ -31,7 +33,7 @@ macro_rules! NumberToString {
 }
 
 #[cfg(test)]
-mod test_number_macro {
+mod test_string_to_number_macro {
     use super::*;
 
     #[test]
@@ -108,18 +110,109 @@ mod test_number_macro {
     }
 }
 
-// Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
-pub fn gcd(a: &str, b: &str) -> String {
-    let mut x = StringToNumber!(a);
-    let mut y = StringToNumber!(b);
+#[cfg(test)]
+mod test_number_to_string_macro {
+    use super::*;
 
-    while y != Zero::zero() {
-        let r = x % &y;
-        x = y;
-        y = r;
+    #[test]
+    fn negative_small() {
+        let num = BigInt::parse_bytes(b"-5", 10).unwrap();
+        let a = NumberToString!(num);
+        let b = "-5".to_string();
+        assert_eq!(a, b);
     }
 
-    return NumberToString!(x);
+    #[test]
+    fn negative_large() {
+        let num = BigInt::parse_bytes(b"-523892389328392", 10).unwrap();
+        let a = NumberToString!(num);
+        let b = "-523892389328392".to_string();
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn miniscule() {
+        let num = BigInt::parse_bytes(b"0", 10).unwrap();
+        let a = NumberToString!(num);
+        let b = "0".to_string();
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn tiny() {
+        let num = BigInt::parse_bytes(b"10", 10).unwrap();
+        let a = NumberToString!(num);
+        let b = "10".to_string();
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn small() {
+        let num = BigInt::parse_bytes(b"123", 10).unwrap();
+        let a = NumberToString!(num);
+        let b = "123".to_string();
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn medium() {
+        let num = BigInt::parse_bytes(b"123456789", 10).unwrap();
+        let a = NumberToString!(num);
+        let b = "123456789".to_string();
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn large() {
+        let num = BigInt::parse_bytes(b"123456789123456789", 10).unwrap();
+        let a = NumberToString!(num);
+        let b = "123456789123456789".to_string();
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn x_large() {
+        let num = BigInt::parse_bytes(
+            b"123456789123456789123456789123456789123456789123456789",
+            10,
+        ).unwrap();
+        let a = NumberToString!(num);
+        let b = "123456789123456789123456789123456789123456789123456789".to_string();
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn xx_large() {
+        let num = BigInt::parse_bytes(b"123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789", 10).unwrap();
+        let a = NumberToString!(num);
+        let b = "123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789".to_string();
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn xxx_large() {
+        let num = BigInt::parse_bytes(b"123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789", 10).unwrap();
+        let a = NumberToString!(num);
+        let b = "123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789".to_string();
+        assert_eq!(a, b);
+    }
+}
+
+// Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
+pub fn gcd(a: &str, b: &str) -> String {
+    // Small number constants
+    let zero = StringToNumber!("0".to_string());
+
+    let mut a_num = StringToNumber!(a);
+    let mut b_num = StringToNumber!(b);
+
+    while b_num != zero {
+        let remainder = a_num % &b_num;
+        a_num = b_num;
+        b_num = remainder;
+    }
+
+    return NumberToString!(a_num);
 }
 
 #[cfg(test)]
@@ -240,31 +333,34 @@ mod test_lcm {
     }
 }
 
-
 // Based on pseudocode from: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
 pub fn extended_gcd(a: &str, b: &str) -> (String, String) {
-    let mut r = StringToNumber!(a);
-    let mut old_r = StringToNumber!(b);
+    // Small number constants
+    let zero = StringToNumber!("0".to_string());
+    let one = StringToNumber!("1".to_string());
 
-    let mut old_s: BigInt = One::one();
-    let mut s: BigInt = Zero::zero();
+    let mut a_num = StringToNumber!(a);
+    let mut b_num = StringToNumber!(b);
 
-    let mut old_t: BigInt = Zero::zero();
-    let mut t: BigInt = One::one();
+    let mut old_s: BigInt = one.clone();
+    let mut s: BigInt = zero.clone();
 
-    while r != Zero::zero() {
-        let q = &old_r / &r;
+    let mut old_t: BigInt = zero.clone();
+    let mut t: BigInt = one.clone();
 
-        let temp_r = r.clone();
-        r = old_r - &q * r;
-        old_r = temp_r;
+    while a_num != zero {
+        let quotient = &b_num / &a_num;
+
+        let temp_r = a_num.clone();
+        a_num = b_num - &quotient * a_num;
+        b_num = temp_r;
 
         let temp_s = s.clone();
-        s = old_s - &q * s;
+        s = old_s - &quotient * s;
         old_s = temp_s;
 
         let temp_t = t.clone();
-        t = old_t - &q * t;
+        t = old_t - &quotient * t;
         old_t = temp_t;
     }
 
@@ -336,14 +432,19 @@ mod test_extended_gcd {
 
 // Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
 pub fn mod_inverse(a: &str, m: &str) -> Option<String> {
+    // Small number constants
+    let one = StringToNumber!("1".to_string());
+
     let gcd_num = StringToNumber!(gcd(&a, &m));
-    if gcd_num != One::one() {
+    if gcd_num != one {
         return None;
     }
 
     let (u, _) = extended_gcd(&a, &m);
+
     let u_num = StringToNumber!(u);
     let m_num = StringToNumber!(m);
+
     Some(NumberToString!(u_num % m_num))
 }
 
@@ -404,10 +505,11 @@ mod test_mod_inverse {
 }
 
 // Check out: https://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test
-pub fn miller_rabin(n: &str, seed: Vec<u8>) -> bool {
-    let zero: BigInt = StringToNumber!("0");
-    let one: BigInt = StringToNumber!("1");
-    let two: BigInt = StringToNumber!("2");
+pub fn miller_rabin(n: &str, seed: &[u8]) -> bool {
+    // Small number constants
+    let zero: BigInt = StringToNumber!("0".to_string());
+    let one: BigInt = StringToNumber!("1".to_string());
+    let two: BigInt = StringToNumber!("2".to_string());
 
     let n_num: BigInt = StringToNumber!(n);
     let n_minus_one = &n_num - &one;
@@ -429,7 +531,7 @@ pub fn miller_rabin(n: &str, seed: Vec<u8>) -> bool {
     }
 
     let mut rng: StdRng = SeedableRng::from_seed(from_slice(&seed));
-    
+
     // 50 here is a parameter for accuracy
     for _ in 0..50 {
         let a_num = rng.gen_bigint_range(&two, &n_minus_one);
@@ -469,10 +571,11 @@ pub fn miller_rabin(n: &str, seed: Vec<u8>) -> bool {
     true
 }
 
-pub fn is_prime(n: &str, seed: Vec<u8>) -> bool {
-    let zero = StringToNumber!("0");
-    let one = StringToNumber!("1");
-    let two = StringToNumber!("2");
+pub fn is_prime(n: &str, seed: &[u8]) -> bool {
+    // Small number constants
+    let zero = StringToNumber!("0".to_string());
+    let one = StringToNumber!("1".to_string());
+    let two = StringToNumber!("2".to_string());
 
     let n_num = StringToNumber!(n);
 
@@ -501,7 +604,7 @@ pub fn is_prime(n: &str, seed: Vec<u8>) -> bool {
     let bases_as_bigints: Vec<BigInt> = BASES.iter().map(|x| x.to_bigint().unwrap()).collect();
 
     for base in &bases_as_bigints {
-        if base.modpow(&n_minus_one, &n_num) != StringToNumber!("1") {
+        if base.modpow(&n_minus_one, &n_num) != one {
             return false;
         }
     }
@@ -584,23 +687,26 @@ mod test_is_prime_and_rabin_miller {
     }
 }
 
-#[wasm_bindgen]
-pub fn generate_prime(bits: usize, tries: usize, seed: Vec<u8>) -> Option<String> {
+pub fn generate_prime(bits: usize, tries: usize, seed: &[u8]) -> Option<String> {
+    // Small number constants
+    let zero = StringToNumber!("0".to_string());
+    let two = StringToNumber!("2".to_string());
+
     let bits_minus_one = bits - 1;
-    let x = num::pow(StringToNumber!("2"), bits_minus_one);
-    let y = StringToNumber!("2") * &x;
+    let x = pow(two.clone(), bits_minus_one);
+    let y = &two * &x;
 
     let mut rng: StdRng = SeedableRng::from_seed(from_slice(&seed));
 
     for _ in 0..tries {
         let mut n = rng.gen_bigint_range(&x, &y);
 
-        if &n % StringToNumber!("2") == StringToNumber!("0") {
+        if &n % &two == zero {
             n += 1;
         }
 
         let num_str = &NumberToString!(&n);
-        let q = is_prime(num_str, seed.clone());
+        let q = is_prime(num_str, seed);
 
         if q {
             return Some(NumberToString!(n));
@@ -635,7 +741,13 @@ mod test_generate_prime {
     #[test]
     fn large_prime() {
         let prime = generate_prime(256, 1000, test_seed());
-        assert_eq!(prime, Some("91585194753718779240055081770127290880143452499556598946529982336565467053363".to_string()));
+        assert_eq!(
+            prime,
+            Some(
+                "91585194753718779240055081770127290880143452499556598946529982336565467053363"
+                    .to_string()
+            )
+        );
     }
 }
 
@@ -643,14 +755,18 @@ mod test_generate_prime {
 fn from_slice(bytes: &[u8]) -> [u8; 32] {
     let mut array = [0; 32];
     let bytes = &bytes[..array.len()]; // panics if not enough data
-    array.copy_from_slice(bytes); 
+    array.copy_from_slice(bytes);
     array
 }
 
 // Fixes: https://github.com/ColbyCypherSociety/ChatDemo/issues/21
 // Ref: https://stackoverflow.com/questions/46378637/how-to-make-a-variable-with-a-scope-lifecycle-for-all-test-functions-in-a-rust-t
-fn test_seed() -> Vec<u8> {
-    vec![1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+#[allow(dead_code)]
+fn test_seed<'a>() -> &'a[u8] {
+    &[
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1,
+    ]
 }
 
 #[wasm_bindgen]
@@ -666,16 +782,17 @@ pub struct Keypair {
 
 #[wasm_bindgen]
 impl Keypair {
-    pub fn new(seed_one: Vec<u8>, seed_two: Vec<u8>) -> Keypair {
-        let one = StringToNumber!("1");
-        let two = StringToNumber!("2");
+    pub fn new(seed_one: &[u8], seed_two: &[u8]) -> Keypair {
+        // Small number constants
+        let one = StringToNumber!("1".to_string());
+        let two = StringToNumber!("2".to_string());
 
-        // Hardcoded to 256-bits for now
-        let q_str = generate_prime(256, 1000, seed_one.clone()).unwrap();
+        // Hardcoded to 256-bits with 1000 tries for now
+        let q_str = generate_prime(256, 1000, &seed_one).unwrap();
         let q_num = StringToNumber!(q_str);
 
-        // Hardcoded to 256-bits for now
-        let p_str = generate_prime(256, 1000, seed_two.clone()).unwrap();
+        // Hardcoded to 256-bits with 1000 tries for now
+        let p_str = generate_prime(256, 1000, &seed_two).unwrap();
         let p_num = StringToNumber!(p_str);
 
         let n_num = &p_num * &q_num;
@@ -697,14 +814,14 @@ impl Keypair {
             let e_num = rng.gen_bigint_range(&two, &(&phi_num - &two));
 
             e_str = NumberToString!(&e_num);
-            if gcd(&e_str, &phi_str) == String::from("1") {
+            if gcd(&e_str, &phi_str) == "1" {
                 e_found = true;
             }
         }
 
         let mut d_str = mod_inverse(&e_str, &phi_str).unwrap();
 
-        if StringToNumber!(d_str) < StringToNumber!("0") {
+        if &*d_str <  "0" {
             let d_num = &n_num + StringToNumber!(d_str);
             d_str = NumberToString!(d_num);
         }
@@ -726,13 +843,12 @@ impl Keypair {
 
         let mut decrypted_values: Vec<char> = Vec::new();
 
-        for c in  ciphertext.split(",") {
+        for c in ciphertext.split(',') {
             let to_decrypt = StringToNumber!(c);
-            let decrypted = to_decrypt.modpow(&private_key, &modulus); 
+            let decrypted = to_decrypt.modpow(&private_key, &modulus);
             let decrypted_u8 = decrypted.to_u8();
-            match decrypted_u8 {
-                Some(d_u8) => decrypted_values.push(d_u8 as char),
-                None => (),
+            if let Some(d_u8) = decrypted_u8 {
+                decrypted_values.push(d_u8 as char);
             }
         }
 
@@ -741,13 +857,16 @@ impl Keypair {
 }
 
 #[cfg(test)]
-mod test_generate_key{
+mod test_generate_key {
     use super::*;
 
     #[test]
     fn works_with_simple_encrypt_decrypt() {
         // You need two different seeds (p and q must be different)
-        let seed_one = vec![10,16,51,42,123,31,212,31,233,15,9,7,41,32,4,3,144,122,1,35,1,13,55,23,1,33,1,1,1,1,2,1];
+        let seed_one = &[
+            10, 16, 51, 42, 123, 31, 212, 31, 233, 15, 9, 7, 41, 32, 4, 3, 144, 122, 1, 35, 1, 13,
+            55, 23, 1, 33, 1, 1, 1, 1, 2, 1,
+        ];
         let seed_two = test_seed();
 
         // Generate a keypair
@@ -761,7 +880,7 @@ mod test_generate_key{
         // Message and ciphertext
         let plaintext = StringToNumber!("72");
         let ciphertext = plaintext.modpow(&e, &n);
-        
+
         let decrypted = ciphertext.modpow(&d, &n);
         assert_eq!(plaintext, decrypted);
     }
@@ -772,7 +891,7 @@ pub fn encrypt(m: &str, e: &str, n: &str) -> String {
     let public_key = StringToNumber!(e);
     let modulus = StringToNumber!(n);
 
-    let mut encrypted_values = String::from("");
+    let mut encrypted_values = String::default();
 
     for c in m.bytes() {
         let to_encrypt = StringToNumber!(c.to_string());
@@ -785,13 +904,16 @@ pub fn encrypt(m: &str, e: &str, n: &str) -> String {
 }
 
 #[cfg(test)]
-mod test_encrypt_decrypt{
+mod test_encrypt_decrypt {
     use super::*;
 
     #[test]
     fn complete_encrypt_and_decrypt() {
         // You need two different seeds (p and q must be different)
-        let seed_one = vec![10,16,51,42,123,31,212,31,233,15,9,7,41,32,4,3,144,122,1,35,1,13,55,23,1,33,1,1,1,1,2,1];
+        let seed_one = &[
+            10, 16, 51, 42, 123, 31, 212, 31, 233, 15, 9, 7, 41, 32, 4, 3, 144, 122, 1, 35, 1, 13,
+            55, 23, 1, 33, 1, 1, 1, 1, 2, 1,
+        ];
         let seed_two = test_seed();
 
         // Generate a keypair

@@ -40,25 +40,6 @@ function getUint32Memory() {
     }
     return cachegetUint32Memory;
 }
-/**
-* @param {number} arg0
-* @param {number} arg1
-* @param {Uint8Array} arg2
-* @returns {string}
-*/
-export function generate_prime(arg0, arg1, arg2) {
-    const [ptr2, len2] = passArray8ToWasm(arg2);
-    const retptr = globalArgumentPtr();
-    wasm.generate_prime(retptr, arg0, arg1, ptr2, len2);
-    const mem = getUint32Memory();
-    const rustptr = mem[retptr / 4];
-    const rustlen = mem[retptr / 4 + 1];
-    if (rustptr === 0) return;
-    const realRet = getStringFromWasm(rustptr, rustlen).slice();
-    wasm.__wbindgen_free(rustptr, rustlen * 1);
-    return realRet;
-    
-}
 
 const TextEncoder = typeof self === 'object' && self.TextEncoder
     ? self.TextEncoder
@@ -104,26 +85,6 @@ export function encrypt(arg0, arg1, arg2) {
     
 }
 
-export function __wbg_alert_203900472737c5ba(arg0, arg1) {
-    let varg0 = getStringFromWasm(arg0, arg1);
-    alert(varg0);
-}
-/**
-* @param {string} arg0
-* @returns {void}
-*/
-export function greet(arg0) {
-    const [ptr0, len0] = passStringToWasm(arg0);
-    try {
-        return wasm.greet(ptr0, len0);
-        
-    } finally {
-        wasm.__wbindgen_free(ptr0, len0 * 1);
-        
-    }
-    
-}
-
 /**
 */
 export class Keypair {
@@ -149,7 +110,15 @@ export class Keypair {
     static new(arg0, arg1) {
         const [ptr0, len0] = passArray8ToWasm(arg0);
         const [ptr1, len1] = passArray8ToWasm(arg1);
-        return Keypair.__construct(wasm.keypair_new(ptr0, len0, ptr1, len1));
+        try {
+            return Keypair.__construct(wasm.keypair_new(ptr0, len0, ptr1, len1));
+            
+        } finally {
+            wasm.__wbindgen_free(ptr0, len0 * 1);
+            wasm.__wbindgen_free(ptr1, len1 * 1);
+            
+        }
+        
     }
     /**
     * @returns {string}
