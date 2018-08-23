@@ -847,8 +847,9 @@ impl Keypair {
             let to_decrypt = StringToNumber!(c);
             let decrypted = to_decrypt.modpow(&private_key, &modulus);
             let decrypted_u8 = decrypted.to_u8();
-            if let Some(d_u8) = decrypted_u8 {
-                decrypted_values.push(d_u8 as char);
+            match decrypted_u8 {
+                Some(d_u8) => decrypted_values.push(d_u8 as char),
+                _ => (),
             }
         }
 

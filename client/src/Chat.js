@@ -71,9 +71,9 @@ class Chat extends React.Component {
                     });
                 } catch(err) {
                     temp.push({
-                        message: data,
-                        bgColor: 'white',
-                        color: 'gray',
+                        message: "Error decrypting...",
+                        bgColor: 'red',
+                        color: 'black',
                     });
                 }
             } else {
