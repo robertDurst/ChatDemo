@@ -1,9 +1,5 @@
 /* tslint:disable */
-export function generate_prime(arg0: number, arg1: number, arg2: Uint8Array): string;
-
 export function encrypt(arg0: string, arg1: string, arg2: string): string;
-
-export function greet(arg0: string): void;
 
 export class Keypair {
 free(): void;
