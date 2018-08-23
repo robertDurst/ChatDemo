@@ -20,6 +20,16 @@ static SMALL_PRIMES: &'static [i32] = &[
 
 static BASES: &'static [i32] = &[2, 3, 5, 7, 11];
 
+// Why lazy_static you may ask? Well, for one, try to compile this without lazy_static. You will
+// get an error saying statics can't be the result of an executed function. So, as per the crate
+// docs, with lazy_static we get Using this macro, it is possible to have statics that require
+// code to be executed at runtime in order to be initialized.
+lazy_static! {
+    static ref ZERO: BigInt = string_to_number("0");
+    static ref ONE: BigInt = string_to_number("1");
+    static ref TWO: BigInt = string_to_number("2");
+}
+
 pub fn string_to_number(s: &str) -> BigInt {
      BigInt::parse_bytes(s.as_bytes(), 10).unwrap()
 }
@@ -196,19 +206,16 @@ mod test_number_to_string_macro {
 
 // Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
 pub fn gcd(a: &str, b: &str) -> String {
-    // Small number constants
-    let zero = string_to_number("0");
-
     let mut a_num = string_to_number(a);
     let mut b_num = string_to_number(b);
 
-    while b_num != zero {
+    while b_num != *ZERO {
         let remainder = a_num % &b_num;
         a_num = b_num;
         b_num = remainder;
     }
 
-    return number_to_string(&a_num);
+    number_to_string(&a_num)
 }
 
 #[cfg(test)]
@@ -331,20 +338,16 @@ mod test_lcm {
 
 // Based on pseudocode from: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
 pub fn extended_gcd(a: &str, b: &str) -> (String, String) {
-    // Small number constants
-    let zero = string_to_number("0");
-    let one = string_to_number("1");
-
     let mut a_num = string_to_number(a);
     let mut b_num = string_to_number(b);
 
-    let mut old_s: BigInt = one.clone();
-    let mut s: BigInt = zero.clone();
+    let mut old_s: BigInt = ONE.clone();
+    let mut s: BigInt = ZERO.clone();
 
-    let mut old_t: BigInt = zero.clone();
-    let mut t: BigInt = one.clone();
+    let mut old_t: BigInt = ZERO.clone();
+    let mut t: BigInt = ONE.clone();
 
-    while a_num != zero {
+    while a_num != *ZERO {
         let quotient = &b_num / &a_num;
 
         let temp_r = a_num.clone();
@@ -432,11 +435,8 @@ mod test_extended_gcd {
 
 // Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
 pub fn mod_inverse(a: &str, m: &str) -> Option<String> {
-    // Small number constants
-    let one = string_to_number("1");
-
     let gcd_num = string_to_number(&gcd(&a, &m));
-    if gcd_num != one {
+    if gcd_num != *ONE {
         return None;
     }
 
@@ -506,61 +506,56 @@ mod test_mod_inverse {
 
 // Check out: https://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test
 pub fn miller_rabin(n: &str, seed: &[u8]) -> bool {
-    // Small number constants
-    let zero: BigInt = string_to_number("0");
-    let one: BigInt = string_to_number("1");
-    let two: BigInt = string_to_number("2");
-
     let n_num: BigInt = string_to_number(n);
-    let n_minus_one = &n_num - &one;
+    let n_minus_one = &n_num - &*ONE;
 
-    if n_num == two {
+    if n_num == *TWO {
         return true;
     }
 
-    if n_num < two || &n_num % &two == zero {
+    if n_num < *TWO || &n_num % &*TWO == *ZERO {
         return false;
     }
 
-    let mut s: BigInt = zero.clone();
-    let mut d: BigInt = &n_num - &one;
+    let mut s: BigInt = ZERO.clone();
+    let mut d: BigInt = &n_num - &*ONE;
 
-    while &d % &two == zero {
-        s += &one;
-        d /= &two;
+    while &d % &*TWO == *ZERO {
+        s += &*ONE;
+        d /= &*TWO;
     }
 
     let mut rng: StdRng = SeedableRng::from_seed(from_slice(&seed));
 
     // 50 here is a parameter for accuracy
     for _ in 0..50 {
-        let a_num = rng.gen_bigint_range(&two, &n_minus_one);
+        let a_num = rng.gen_bigint_range(&*TWO, &n_minus_one);
         let a_str = number_to_string(&a_num);
 
         let gcd_str = gcd(&a_str, &n);
         let gcd_num = string_to_number(&gcd_str);
 
-        if gcd_num != one {
+        if gcd_num != *ONE {
             return false;
         }
 
         let mut x_num = a_num.modpow(&d, &n_num);
 
-        if x_num == one || x_num == n_minus_one {
+        if x_num == *ONE || x_num == n_minus_one {
             continue;
         }
 
         let mut is_witness = true;
-        let mut r = one.clone();
+        let mut r = ONE.clone();
 
         while r < s && is_witness {
-            x_num = x_num.modpow(&two, &n_num);
+            x_num = x_num.modpow(&*TWO, &n_num);
 
             if x_num == n_minus_one {
                 is_witness = false;
             }
 
-            r += &one;
+            r += &*ONE;
         }
 
         if is_witness {
@@ -572,16 +567,11 @@ pub fn miller_rabin(n: &str, seed: &[u8]) -> bool {
 }
 
 pub fn is_prime(n: &str, seed: &[u8]) -> bool {
-    // Small number constants
-    let zero = string_to_number("0");
-    let one = string_to_number("1");
-    let two = string_to_number("2");
-
     let n_num = string_to_number(n);
 
-    let n_minus_one = &n_num - &one;
+    let n_minus_one = &n_num - &*ONE;
 
-    if n_num < two {
+    if n_num < *TWO {
         return false;
     }
 
@@ -596,7 +586,7 @@ pub fn is_prime(n: &str, seed: &[u8]) -> bool {
     }
 
     for prime in small_primes_as_bigints {
-        if &n_num % &prime == zero {
+        if &n_num % &prime == *ZERO {
             return false;
         }
     }
@@ -604,7 +594,7 @@ pub fn is_prime(n: &str, seed: &[u8]) -> bool {
     let bases_as_bigints: Vec<BigInt> = BASES.iter().map(|x| x.to_bigint().unwrap()).collect();
 
     for base in &bases_as_bigints {
-        if base.modpow(&n_minus_one, &n_num) != one {
+        if base.modpow(&n_minus_one, &n_num) != *ONE {
             return false;
         }
     }
@@ -688,20 +678,16 @@ mod test_is_prime_and_rabin_miller {
 }
 
 pub fn generate_prime(bits: usize, tries: usize, seed: &[u8]) -> Option<String> {
-    // Small number constants
-    let zero = string_to_number("0");
-    let two = string_to_number("2");
-
     let bits_minus_one = bits - 1;
-    let x = pow(two.clone(), bits_minus_one);
-    let y = &two * &x;
+    let x = pow(TWO.clone(), bits_minus_one);
+    let y = &*TWO * &x;
 
     let mut rng: StdRng = SeedableRng::from_seed(from_slice(&seed));
 
     for _ in 0..tries {
         let mut n = rng.gen_bigint_range(&x, &y);
 
-        if &n % &two == zero {
+        if &n % &*TWO == *ZERO {
             n += 1;
         }
 
@@ -783,10 +769,6 @@ pub struct Keypair {
 #[wasm_bindgen]
 impl Keypair {
     pub fn new(seed_one: &[u8], seed_two: &[u8]) -> Keypair {
-        // Small number constants
-        let one = string_to_number("1");
-        let two = string_to_number("2");
-
         // Hardcoded to 256-bits with 1000 tries for now
         let q_str = generate_prime(256, 1000, &seed_one).unwrap();
         let q_num = string_to_number(&q_str);
@@ -798,8 +780,8 @@ impl Keypair {
         let n_num = &p_num * &q_num;
         let n_str = number_to_string(&n_num);
 
-        let p_minus_one_str = number_to_string(&(&p_num - &one));
-        let q_minus_one_str = number_to_string(&(&q_num - &one));
+        let p_minus_one_str = number_to_string(&(&p_num - &*ONE));
+        let q_minus_one_str = number_to_string(&(&q_num - &*ONE));
 
         let phi_str = lcm(&p_minus_one_str, &q_minus_one_str);
         let phi_num = string_to_number(&phi_str);
@@ -811,7 +793,7 @@ impl Keypair {
         let mut e_str = String::default();
 
         while !e_found {
-            let e_num = rng.gen_bigint_range(&two, &(&phi_num - &two));
+            let e_num = rng.gen_bigint_range(&*TWO, &(&phi_num - &*TWO));
 
             e_str = number_to_string(&e_num);
             if gcd(&e_str, &phi_str) == "1" {
