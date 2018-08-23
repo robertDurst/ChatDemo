@@ -20,16 +20,12 @@ static SMALL_PRIMES: &'static [i32] = &[
 
 static BASES: &'static [i32] = &[2, 3, 5, 7, 11];
 
-macro_rules! StringToNumber {
-    ($e: expr) => {
-        BigInt::parse_bytes($e.as_bytes(), 10).unwrap();
-    };
+pub fn string_to_number(s: &str) -> BigInt {
+     BigInt::parse_bytes(s.as_bytes(), 10).unwrap()
 }
 
-macro_rules! NumberToString {
-    ($e: expr) => {
-        format!("{}", $e);
-    };
+pub fn number_to_string(num: &BigInt) -> String {
+     format!("{}", num)
 }
 
 #[cfg(test)]
@@ -38,56 +34,56 @@ mod test_string_to_number_macro {
 
     #[test]
     fn negative_small() {
-        let a = StringToNumber!("-5");
+        let a = string_to_number("-5");
         let b = BigInt::parse_bytes(b"-5", 10).unwrap();
         assert_eq!(a, b);
     }
 
     #[test]
     fn negative_large() {
-        let a = StringToNumber!("-523892389328392");
+        let a = string_to_number("-523892389328392");
         let b = BigInt::parse_bytes(b"-523892389328392", 10).unwrap();
         assert_eq!(a, b);
     }
 
     #[test]
     fn miniscule() {
-        let a = StringToNumber!("0");
+        let a = string_to_number("0");
         let b = BigInt::parse_bytes(b"0", 10).unwrap();
         assert_eq!(a, b);
     }
 
     #[test]
     fn tiny() {
-        let a = StringToNumber!("10");
+        let a = string_to_number("10");
         let b = BigInt::parse_bytes(b"10", 10).unwrap();
         assert_eq!(a, b);
     }
 
     #[test]
     fn small() {
-        let a = StringToNumber!("123");
+        let a = string_to_number("123");
         let b = BigInt::parse_bytes(b"123", 10).unwrap();
         assert_eq!(a, b);
     }
 
     #[test]
     fn medium() {
-        let a = StringToNumber!("123456789");
+        let a = string_to_number("123456789");
         let b = BigInt::parse_bytes(b"123456789", 10).unwrap();
         assert_eq!(a, b);
     }
 
     #[test]
     fn large() {
-        let a = StringToNumber!("123456789123456789");
+        let a = string_to_number("123456789123456789");
         let b = BigInt::parse_bytes(b"123456789123456789", 10).unwrap();
         assert_eq!(a, b);
     }
 
     #[test]
     fn x_large() {
-        let a = StringToNumber!("123456789123456789123456789123456789123456789123456789");
+        let a = string_to_number("123456789123456789123456789123456789123456789123456789");
         let b = BigInt::parse_bytes(
             b"123456789123456789123456789123456789123456789123456789",
             10,
@@ -97,14 +93,14 @@ mod test_string_to_number_macro {
 
     #[test]
     fn xx_large() {
-        let a = StringToNumber!("123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789");
+        let a = string_to_number("123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789");
         let b = BigInt::parse_bytes(b"123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789", 10).unwrap();
         assert_eq!(a, b);
     }
 
     #[test]
     fn xxx_large() {
-        let a = StringToNumber!("123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789");
+        let a = string_to_number("123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789");
         let b = BigInt::parse_bytes(b"123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789", 10).unwrap();
         assert_eq!(a, b);
     }
@@ -117,7 +113,7 @@ mod test_number_to_string_macro {
     #[test]
     fn negative_small() {
         let num = BigInt::parse_bytes(b"-5", 10).unwrap();
-        let a = NumberToString!(num);
+        let a = number_to_string(&num);
         let b = "-5".to_string();
         assert_eq!(a, b);
     }
@@ -125,7 +121,7 @@ mod test_number_to_string_macro {
     #[test]
     fn negative_large() {
         let num = BigInt::parse_bytes(b"-523892389328392", 10).unwrap();
-        let a = NumberToString!(num);
+        let a = number_to_string(&num);
         let b = "-523892389328392".to_string();
         assert_eq!(a, b);
     }
@@ -133,15 +129,15 @@ mod test_number_to_string_macro {
     #[test]
     fn miniscule() {
         let num = BigInt::parse_bytes(b"0", 10).unwrap();
-        let a = NumberToString!(num);
-        let b = "0".to_string();
+        let a = number_to_string(&num);
+        let b = "0";
         assert_eq!(a, b);
     }
 
     #[test]
     fn tiny() {
         let num = BigInt::parse_bytes(b"10", 10).unwrap();
-        let a = NumberToString!(num);
+        let a = number_to_string(&num);
         let b = "10".to_string();
         assert_eq!(a, b);
     }
@@ -149,7 +145,7 @@ mod test_number_to_string_macro {
     #[test]
     fn small() {
         let num = BigInt::parse_bytes(b"123", 10).unwrap();
-        let a = NumberToString!(num);
+        let a = number_to_string(&num);
         let b = "123".to_string();
         assert_eq!(a, b);
     }
@@ -157,7 +153,7 @@ mod test_number_to_string_macro {
     #[test]
     fn medium() {
         let num = BigInt::parse_bytes(b"123456789", 10).unwrap();
-        let a = NumberToString!(num);
+        let a = number_to_string(&num);
         let b = "123456789".to_string();
         assert_eq!(a, b);
     }
@@ -165,7 +161,7 @@ mod test_number_to_string_macro {
     #[test]
     fn large() {
         let num = BigInt::parse_bytes(b"123456789123456789", 10).unwrap();
-        let a = NumberToString!(num);
+        let a = number_to_string(&num);
         let b = "123456789123456789".to_string();
         assert_eq!(a, b);
     }
@@ -176,7 +172,7 @@ mod test_number_to_string_macro {
             b"123456789123456789123456789123456789123456789123456789",
             10,
         ).unwrap();
-        let a = NumberToString!(num);
+        let a = number_to_string(&num);
         let b = "123456789123456789123456789123456789123456789123456789".to_string();
         assert_eq!(a, b);
     }
@@ -184,7 +180,7 @@ mod test_number_to_string_macro {
     #[test]
     fn xx_large() {
         let num = BigInt::parse_bytes(b"123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789", 10).unwrap();
-        let a = NumberToString!(num);
+        let a = number_to_string(&num);
         let b = "123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789".to_string();
         assert_eq!(a, b);
     }
@@ -192,7 +188,7 @@ mod test_number_to_string_macro {
     #[test]
     fn xxx_large() {
         let num = BigInt::parse_bytes(b"123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789", 10).unwrap();
-        let a = NumberToString!(num);
+        let a = number_to_string(&num);
         let b = "123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789".to_string();
         assert_eq!(a, b);
     }
@@ -201,10 +197,10 @@ mod test_number_to_string_macro {
 // Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
 pub fn gcd(a: &str, b: &str) -> String {
     // Small number constants
-    let zero = StringToNumber!("0".to_string());
+    let zero = string_to_number("0");
 
-    let mut a_num = StringToNumber!(a);
-    let mut b_num = StringToNumber!(b);
+    let mut a_num = string_to_number(a);
+    let mut b_num = string_to_number(b);
 
     while b_num != zero {
         let remainder = a_num % &b_num;
@@ -212,7 +208,7 @@ pub fn gcd(a: &str, b: &str) -> String {
         b_num = remainder;
     }
 
-    return NumberToString!(a_num);
+    return number_to_string(&a_num);
 }
 
 #[cfg(test)]
@@ -285,15 +281,15 @@ mod test_gcd {
 }
 
 pub fn lcm(a: &str, b: &str) -> String {
-    let x = StringToNumber!(a);
-    let y = StringToNumber!(b);
+    let x = string_to_number(a);
+    let y = string_to_number(b);
 
     let numerator = &x * &y;
-    let denominator = StringToNumber!(gcd(a, b));
+    let denominator = string_to_number(&gcd(a, b));
 
     let lcm = numerator / denominator;
 
-    NumberToString!(lcm)
+    number_to_string(&lcm)
 }
 
 #[cfg(test)]
@@ -336,11 +332,11 @@ mod test_lcm {
 // Based on pseudocode from: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
 pub fn extended_gcd(a: &str, b: &str) -> (String, String) {
     // Small number constants
-    let zero = StringToNumber!("0".to_string());
-    let one = StringToNumber!("1".to_string());
+    let zero = string_to_number("0");
+    let one = string_to_number("1");
 
-    let mut a_num = StringToNumber!(a);
-    let mut b_num = StringToNumber!(b);
+    let mut a_num = string_to_number(a);
+    let mut b_num = string_to_number(b);
 
     let mut old_s: BigInt = one.clone();
     let mut s: BigInt = zero.clone();
@@ -364,7 +360,7 @@ pub fn extended_gcd(a: &str, b: &str) -> (String, String) {
         old_t = temp_t;
     }
 
-    (NumberToString!(old_t), NumberToString!(old_s))
+    (number_to_string(&old_t), number_to_string(&old_s))
 }
 
 #[cfg(test)]
@@ -384,9 +380,13 @@ mod test_extended_gcd {
     fn tiny() {
         let a = "180";
         let b = "150";
-        let expected_a = "1".to_string();
-        let expected_b = "-1".to_string();
-        assert_eq!(extended_gcd(a, b), (expected_a, expected_b));
+
+        let (x, y) = extended_gcd(a, b);
+        let expected_x = "1";
+        let expected_y = "-1".to_string();
+
+        assert_eq!(x, expected_x);
+        assert_eq!(y, expected_y);
     }
 
     #[test]
@@ -433,19 +433,19 @@ mod test_extended_gcd {
 // Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
 pub fn mod_inverse(a: &str, m: &str) -> Option<String> {
     // Small number constants
-    let one = StringToNumber!("1".to_string());
+    let one = string_to_number("1");
 
-    let gcd_num = StringToNumber!(gcd(&a, &m));
+    let gcd_num = string_to_number(&gcd(&a, &m));
     if gcd_num != one {
         return None;
     }
 
     let (u, _) = extended_gcd(&a, &m);
 
-    let u_num = StringToNumber!(u);
-    let m_num = StringToNumber!(m);
+    let u_num = string_to_number(&u);
+    let m_num = string_to_number(m);
 
-    Some(NumberToString!(u_num % m_num))
+    Some(number_to_string(&(u_num % m_num)))
 }
 
 #[cfg(test)]
@@ -507,11 +507,11 @@ mod test_mod_inverse {
 // Check out: https://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test
 pub fn miller_rabin(n: &str, seed: &[u8]) -> bool {
     // Small number constants
-    let zero: BigInt = StringToNumber!("0".to_string());
-    let one: BigInt = StringToNumber!("1".to_string());
-    let two: BigInt = StringToNumber!("2".to_string());
+    let zero: BigInt = string_to_number("0");
+    let one: BigInt = string_to_number("1");
+    let two: BigInt = string_to_number("2");
 
-    let n_num: BigInt = StringToNumber!(n);
+    let n_num: BigInt = string_to_number(n);
     let n_minus_one = &n_num - &one;
 
     if n_num == two {
@@ -535,10 +535,10 @@ pub fn miller_rabin(n: &str, seed: &[u8]) -> bool {
     // 50 here is a parameter for accuracy
     for _ in 0..50 {
         let a_num = rng.gen_bigint_range(&two, &n_minus_one);
-        let a_str = NumberToString!(&a_num);
+        let a_str = number_to_string(&a_num);
 
         let gcd_str = gcd(&a_str, &n);
-        let gcd_num = StringToNumber!(gcd_str);
+        let gcd_num = string_to_number(&gcd_str);
 
         if gcd_num != one {
             return false;
@@ -573,11 +573,11 @@ pub fn miller_rabin(n: &str, seed: &[u8]) -> bool {
 
 pub fn is_prime(n: &str, seed: &[u8]) -> bool {
     // Small number constants
-    let zero = StringToNumber!("0".to_string());
-    let one = StringToNumber!("1".to_string());
-    let two = StringToNumber!("2".to_string());
+    let zero = string_to_number("0");
+    let one = string_to_number("1");
+    let two = string_to_number("2");
 
-    let n_num = StringToNumber!(n);
+    let n_num = string_to_number(n);
 
     let n_minus_one = &n_num - &one;
 
@@ -689,8 +689,8 @@ mod test_is_prime_and_rabin_miller {
 
 pub fn generate_prime(bits: usize, tries: usize, seed: &[u8]) -> Option<String> {
     // Small number constants
-    let zero = StringToNumber!("0".to_string());
-    let two = StringToNumber!("2".to_string());
+    let zero = string_to_number("0");
+    let two = string_to_number("2");
 
     let bits_minus_one = bits - 1;
     let x = pow(two.clone(), bits_minus_one);
@@ -705,11 +705,11 @@ pub fn generate_prime(bits: usize, tries: usize, seed: &[u8]) -> Option<String> 
             n += 1;
         }
 
-        let num_str = &NumberToString!(&n);
+        let num_str = &number_to_string(&n);
         let q = is_prime(num_str, seed);
 
         if q {
-            return Some(NumberToString!(n));
+            return Some(number_to_string(&n));
         }
     }
 
@@ -784,25 +784,25 @@ pub struct Keypair {
 impl Keypair {
     pub fn new(seed_one: &[u8], seed_two: &[u8]) -> Keypair {
         // Small number constants
-        let one = StringToNumber!("1".to_string());
-        let two = StringToNumber!("2".to_string());
+        let one = string_to_number("1");
+        let two = string_to_number("2");
 
         // Hardcoded to 256-bits with 1000 tries for now
         let q_str = generate_prime(256, 1000, &seed_one).unwrap();
-        let q_num = StringToNumber!(q_str);
+        let q_num = string_to_number(&q_str);
 
         // Hardcoded to 256-bits with 1000 tries for now
         let p_str = generate_prime(256, 1000, &seed_two).unwrap();
-        let p_num = StringToNumber!(p_str);
+        let p_num = string_to_number(&p_str);
 
         let n_num = &p_num * &q_num;
-        let n_str = NumberToString!(n_num);
+        let n_str = number_to_string(&n_num);
 
-        let p_minus_one_str = NumberToString!(&p_num - &one);
-        let q_minus_one_str = NumberToString!(&q_num - &one);
+        let p_minus_one_str = number_to_string(&(&p_num - &one));
+        let q_minus_one_str = number_to_string(&(&q_num - &one));
 
         let phi_str = lcm(&p_minus_one_str, &q_minus_one_str);
-        let phi_num = StringToNumber!(&phi_str);
+        let phi_num = string_to_number(&phi_str);
 
         let mut e_found = false;
 
@@ -813,7 +813,7 @@ impl Keypair {
         while !e_found {
             let e_num = rng.gen_bigint_range(&two, &(&phi_num - &two));
 
-            e_str = NumberToString!(&e_num);
+            e_str = number_to_string(&e_num);
             if gcd(&e_str, &phi_str) == "1" {
                 e_found = true;
             }
@@ -822,8 +822,8 @@ impl Keypair {
         let mut d_str = mod_inverse(&e_str, &phi_str).unwrap();
 
         if &*d_str <  "0" {
-            let d_num = &n_num + StringToNumber!(d_str);
-            d_str = NumberToString!(d_num);
+            let d_num = &n_num + string_to_number(&d_str);
+            d_str = number_to_string(&d_num);
         }
 
         Keypair {
@@ -838,13 +838,13 @@ impl Keypair {
     }
 
     pub fn decrypt(&self, ciphertext: &str) -> String {
-        let private_key = StringToNumber!(&self.d);
-        let modulus = StringToNumber!(&self.n);
+        let private_key = string_to_number(&self.d);
+        let modulus = string_to_number(&self.n);
 
         let mut decrypted_values: Vec<char> = Vec::new();
 
         for c in ciphertext.split(',') {
-            let to_decrypt = StringToNumber!(c);
+            let to_decrypt = string_to_number(c);
             let decrypted = to_decrypt.modpow(&private_key, &modulus);
             let decrypted_u8 = decrypted.to_u8();
             match decrypted_u8 {
@@ -874,12 +874,12 @@ mod test_generate_key {
         let k = Keypair::new(seed_one, seed_two);
 
         // Capture all the variables for encryption and decryption
-        let e = StringToNumber!(k.e);
-        let d = StringToNumber!(k.d);
-        let n = StringToNumber!(k.n);
+        let e = string_to_number(&k.e);
+        let d = string_to_number(&k.d);
+        let n = string_to_number(&k.n);
 
         // Message and ciphertext
-        let plaintext = StringToNumber!("72");
+        let plaintext = string_to_number("72");
         let ciphertext = plaintext.modpow(&e, &n);
 
         let decrypted = ciphertext.modpow(&d, &n);
@@ -889,16 +889,17 @@ mod test_generate_key {
 
 #[wasm_bindgen]
 pub fn encrypt(m: &str, e: &str, n: &str) -> String {
-    let public_key = StringToNumber!(e);
-    let modulus = StringToNumber!(n);
+    let public_key = string_to_number(e);
+    let modulus = string_to_number(n);
 
     let mut encrypted_values = String::default();
 
     for c in m.bytes() {
-        let to_encrypt = StringToNumber!(c.to_string());
+        let c_str = c.to_string();
+        let to_encrypt = string_to_number(&c_str);
         let encrypted = to_encrypt.modpow(&public_key, &modulus);
 
-        encrypted_values = format!("{},{}", encrypted_values, NumberToString!(encrypted));
+        encrypted_values = format!("{},{}", encrypted_values, number_to_string(&encrypted));
     }
 
     encrypted_values
