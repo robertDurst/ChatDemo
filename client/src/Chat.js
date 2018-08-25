@@ -167,12 +167,10 @@ class Chat extends React.Component {
     }
 
     generateSeed() {
-        let seed = [];
-        for (var i = 0; i < 32; i ++) {
-            seed.push(Math.floor(Math.random() * 100));
-        }
+        let array = new Uint32Array(32);
+        window.crypto.getRandomValues(array);
 
-        return seed;
+        return array;
     }
 
     onChangeMessage(e) {
