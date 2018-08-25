@@ -39,84 +39,6 @@ pub fn number_to_string(num: &BigInt) -> String {
 }
 
 #[cfg(test)]
-mod test_string_to_number_macro {
-    use super::*;
-
-    #[test]
-    fn negative_small() {
-        let a = string_to_number("-5");
-        let b = BigInt::parse_bytes(b"-5", 10).unwrap();
-        assert_eq!(a, b);
-    }
-
-    #[test]
-    fn negative_large() {
-        let a = string_to_number("-523892389328392");
-        let b = BigInt::parse_bytes(b"-523892389328392", 10).unwrap();
-        assert_eq!(a, b);
-    }
-
-    #[test]
-    fn miniscule() {
-        let a = string_to_number("0");
-        let b = BigInt::parse_bytes(b"0", 10).unwrap();
-        assert_eq!(a, b);
-    }
-
-    #[test]
-    fn tiny() {
-        let a = string_to_number("10");
-        let b = BigInt::parse_bytes(b"10", 10).unwrap();
-        assert_eq!(a, b);
-    }
-
-    #[test]
-    fn small() {
-        let a = string_to_number("123");
-        let b = BigInt::parse_bytes(b"123", 10).unwrap();
-        assert_eq!(a, b);
-    }
-
-    #[test]
-    fn medium() {
-        let a = string_to_number("123456789");
-        let b = BigInt::parse_bytes(b"123456789", 10).unwrap();
-        assert_eq!(a, b);
-    }
-
-    #[test]
-    fn large() {
-        let a = string_to_number("123456789123456789");
-        let b = BigInt::parse_bytes(b"123456789123456789", 10).unwrap();
-        assert_eq!(a, b);
-    }
-
-    #[test]
-    fn x_large() {
-        let a = string_to_number("123456789123456789123456789123456789123456789123456789");
-        let b = BigInt::parse_bytes(
-            b"123456789123456789123456789123456789123456789123456789",
-            10,
-        ).unwrap();
-        assert_eq!(a, b);
-    }
-
-    #[test]
-    fn xx_large() {
-        let a = string_to_number("123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789");
-        let b = BigInt::parse_bytes(b"123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789", 10).unwrap();
-        assert_eq!(a, b);
-    }
-
-    #[test]
-    fn xxx_large() {
-        let a = string_to_number("123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789");
-        let b = BigInt::parse_bytes(b"123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789", 10).unwrap();
-        assert_eq!(a, b);
-    }
-}
-
-#[cfg(test)]
 mod test_number_to_string_macro {
     use super::*;
 
@@ -205,17 +127,17 @@ mod test_number_to_string_macro {
 }
 
 // Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
-pub fn gcd(a: &str, b: &str) -> String {
-    let mut a_num = string_to_number(a);
-    let mut b_num = string_to_number(b);
+pub fn gcd<'a>(a: &'a BigInt, b: &'a BigInt) -> BigInt {
+    let mut x = a.clone();
+    let mut y = b.clone();
 
-    while b_num != *ZERO {
-        let remainder = a_num % &b_num;
-        a_num = b_num;
-        b_num = remainder;
+    while y != *ZERO {
+        let remainder = &x % &y;
+        x = y;
+        y = remainder;
     }
 
-    number_to_string(&a_num)
+    x
 }
 
 #[cfg(test)]
@@ -224,79 +146,74 @@ mod test_gcd {
 
     #[test]
     fn miniscule() {
-        let a = "10";
-        let b = "5";
-        let expected = "5";
+        let a = &string_to_number("10");
+        let b = &string_to_number("5");
+        let expected = string_to_number("5");
         assert_eq!(gcd(a, b), expected);
     }
 
     #[test]
     fn tiny() {
-        let a = "29943";
-        let b = "29738";
-        let expected = "1";
+        let a = &string_to_number("29943");
+        let b = &string_to_number("29738");
+        let expected = string_to_number("1");
         assert_eq!(gcd(a, b), expected);
     }
 
     #[test]
     fn small() {
-        let a = "299429203";
-        let b = "827382738";
-        let expected = "1";
+        let a = &string_to_number("299429203");
+        let b = &string_to_number("827382738");
+        let expected = string_to_number("1");
         assert_eq!(gcd(a, b), expected);
     }
 
     #[test]
     fn medium() {
-        let a = "1672976127961212891";
-        let b = "3378278237328723873";
-        let expected = "3";
+        let a = &string_to_number("1672976127961212891");
+        let b = &string_to_number("3378278237328723873");
+        let expected = string_to_number("3");
         assert_eq!(gcd(a, b), expected);
     }
 
     #[test]
     fn large() {
-        let a = "16729761279612128911672976127961212891";
-        let b = "33782782373287238731672976127961212891";
-        let expected = "3";
+        let a = &string_to_number("16729761279612128911672976127961212891");
+        let b = &string_to_number("33782782373287238731672976127961212891");
+        let expected = string_to_number("3");
         assert_eq!(gcd(a, b), expected);
     }
 
     #[test]
     fn x_large() {
-        let a = "1873817317893712873298173982173982173897128738912738217371897381374891378943789";
-        let b = "9188937128738173912371837981739817238917246812647812678394619836281693618963297";
-        let expected = "1";
+        let a = &string_to_number("1873817317893712873298173982173982173897128738912738217371897381374891378943789");
+        let b = &string_to_number("9188937128738173912371837981739817238917246812647812678394619836281693618963297");
+        let expected = string_to_number("1");
         assert_eq!(gcd(a, b), expected);
     }
 
     #[test]
     fn xx_large() {
-        let a = "18273781798371987398173891273871293762178362308763217863871263826817067830612083612876307916239721638916398216398613892168903681293610639120368219732891372189361287361986371863218763017236270362896319038213";
-        let b = "82726226362376138712678923161327863279136912363261786391287273961273967239678123623623672369236872671268723672167267612727198623872637892632186267386219627823169783627819623761983627816378263178639821687326";
-        let expected = "1";
+        let a = &string_to_number("18273781798371987398173891273871293762178362308763217863871263826817067830612083612876307916239721638916398216398613892168903681293610639120368219732891372189361287361986371863218763017236270362896319038213");
+        let b = &string_to_number("82726226362376138712678923161327863279136912363261786391287273961273967239678123623623672369236872671268723672167267612727198623872637892632186267386219627823169783627819623761983627816378263178639821687326");
+        let expected = string_to_number("1");
         assert_eq!(gcd(a, b), expected);
     }
 
     #[test]
     fn xxx_large() {
-        let a = "1827378179837198739817389127387129376217836230876321786387126382681706783061208361287630791623972163891639821639861389216890368129361063912036821973289137218936128736198637186321876301723627036289631903821318273781798371987398173891273871293762178362308763217863871263826817067830612083612876307916239721638916398216398613892168903681293610639120368219732891372189361287361986371863218763017236270362896319038213";
-        let b = "8272622636237613871267892316132786327913691236326178639128727396127396723967812362362367236923687267126872367216726761272719862387263789263218626738621962782316978362781962376198362781637826317863982168732618273781798371987398173891273871293762178362308763217863871263826817067830612083612876307916239721638916398216398613892168903681293610639120368219732891372189361287361986371863218763017236270362896319038213";
-        let expected = "1";
+        let a = &string_to_number("1827378179837198739817389127387129376217836230876321786387126382681706783061208361287630791623972163891639821639861389216890368129361063912036821973289137218936128736198637186321876301723627036289631903821318273781798371987398173891273871293762178362308763217863871263826817067830612083612876307916239721638916398216398613892168903681293610639120368219732891372189361287361986371863218763017236270362896319038213");
+        let b = &string_to_number("8272622636237613871267892316132786327913691236326178639128727396127396723967812362362367236923687267126872367216726761272719862387263789263218626738621962782316978362781962376198362781637826317863982168732618273781798371987398173891273871293762178362308763217863871263826817067830612083612876307916239721638916398216398613892168903681293610639120368219732891372189361287361986371863218763017236270362896319038213");
+        let expected = string_to_number("1");
         assert_eq!(gcd(a, b), expected);
     }
 }
 
-pub fn lcm(a: &str, b: &str) -> String {
-    let x = string_to_number(a);
-    let y = string_to_number(b);
+pub fn lcm<'a>(a: &'a BigInt, b: &'a BigInt) -> BigInt {
+    let numerator = a * b;
+    let denominator = gcd(a, b);
 
-    let numerator = &x * &y;
-    let denominator = string_to_number(&gcd(a, b));
-
-    let lcm = numerator / denominator;
-
-    number_to_string(&lcm)
+    numerator / denominator
 }
 
 #[cfg(test)]
@@ -305,41 +222,41 @@ mod test_lcm {
 
     #[test]
     fn miniscule() {
-        let a = "5";
-        let b = "2";
-        let expected = "10";
+        let a = &string_to_number("5");
+        let b = &string_to_number("2");
+        let expected = string_to_number("10");
         assert_eq!(lcm(a, b), expected);
     }
 
     #[test]
     fn tiny() {
-        let a = "15";
-        let b = "20";
-        let expected = "60";
+        let a = &string_to_number("15");
+        let b = &string_to_number("20");
+        let expected = string_to_number("60");
         assert_eq!(lcm(a, b), expected);
     }
 
     #[test]
     fn small() {
-        let a = "299429203";
-        let b = "827382738";
-        let expected = "247742553815297814";
+        let a = &string_to_number("299429203");
+        let b = &string_to_number("827382738");
+        let expected = string_to_number("247742553815297814");
         assert_eq!(lcm(a, b), expected);
     }
 
     #[test]
     fn medium() {
-        let a = "1672976127961212891";
-        let b = "3378278237328723873";
-        let expected = "1883926281553946627336368887435682281";
+        let a = &string_to_number("1672976127961212891");
+        let b = &string_to_number("3378278237328723873");
+        let expected = string_to_number("1883926281553946627336368887435682281");
         assert_eq!(lcm(a, b), expected);
     }
 }
 
 // Based on pseudocode from: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
-pub fn extended_gcd(a: &str, b: &str) -> (String, String) {
-    let mut a_num = string_to_number(a);
-    let mut b_num = string_to_number(b);
+pub fn extended_gcd(a: &BigInt, b: &BigInt) -> (BigInt, BigInt) {
+    let mut a_num = a.clone();
+    let mut b_num = b.clone();
 
     let mut old_s: BigInt = ONE.clone();
     let mut s: BigInt = ZERO.clone();
@@ -351,7 +268,7 @@ pub fn extended_gcd(a: &str, b: &str) -> (String, String) {
         let quotient = &b_num / &a_num;
 
         let temp_r = a_num.clone();
-        a_num = b_num - &quotient * a_num;
+        a_num = &b_num - &quotient * &a_num;
         b_num = temp_r;
 
         let temp_s = s.clone();
@@ -363,7 +280,7 @@ pub fn extended_gcd(a: &str, b: &str) -> (String, String) {
         old_t = temp_t;
     }
 
-    (number_to_string(&old_t), number_to_string(&old_s))
+    (old_t, old_s)
 }
 
 #[cfg(test)]
@@ -372,80 +289,69 @@ mod test_extended_gcd {
 
     #[test]
     fn miniscule() {
-        let a = "12";
-        let b = "17";
-        let expected_a = "-7".to_string();
-        let expected_b = "5".to_string();
+        let a = &string_to_number("12");
+        let b = &string_to_number("17");
+        let expected_a = string_to_number("-7");
+        let expected_b = string_to_number("5");
         assert_eq!(extended_gcd(a, b), (expected_a, expected_b));
     }
 
     #[test]
     fn tiny() {
-        let a = "180";
-        let b = "150";
-
-        let (x, y) = extended_gcd(a, b);
-        let expected_x = "1";
-        let expected_y = "-1".to_string();
-
-        assert_eq!(x, expected_x);
-        assert_eq!(y, expected_y);
+        let a = &string_to_number("180");
+        let b = &string_to_number("150");
+        let expected_a = string_to_number("1");
+        let expected_b = string_to_number("-1");
+        assert_eq!(extended_gcd(a, b), (expected_a, expected_b));
     }
 
     #[test]
     fn small() {
-        let a = "39392";
-        let b = "9372";
-        let expected_a = "950".to_string();
-        let expected_b = "-3993".to_string();
+        let a = &string_to_number("39392");
+        let b = &string_to_number("9372");
+        let expected_a = string_to_number("950");
+        let expected_b = string_to_number("-3993");
         assert_eq!(extended_gcd(a, b), (expected_a, expected_b));
     }
 
     #[test]
     fn medium() {
-        let a = "29837362344";
-        let b = "20938934792";
-        let expected_a = "70028498".to_string();
-        let expected_b = "-99788537".to_string();
+        let a = &string_to_number("29837362344");
+        let b = &string_to_number("20938934792");
+        let expected_a = string_to_number("70028498");
+        let expected_b = string_to_number("-99788537");
         assert_eq!(extended_gcd(a, b), (expected_a, expected_b));
     }
 
     #[test]
     fn large() {
-        let a = "298373623442234243";
-        let b = "224224424293284938";
-        let expected_a = "29778059398942417".to_string();
-        let expected_b = "-39625422207881285".to_string();
+        let a = &string_to_number("298373623442234243");
+        let b = &string_to_number("224224424293284938");
+        let expected_a = string_to_number("29778059398942417");
+        let expected_b = string_to_number("-39625422207881285");
         assert_eq!(extended_gcd(a, b), (expected_a, expected_b));
     }
 
     #[test]
     fn x_large() {
-        let a = "1873817317893712873298173982173982173897128738912738217371897381374891378943789";
-        let b = "9188937128738173912371837981739817238917246812647812678394619836281693618963297";
-        let expected_a =
-            "-1486080468736810267748473400213603987572344688308283414544810257982300340964938"
-                .to_string();
-        let expected_b =
-            "303043026531734365807887908508346161442903254640489390676789939813131430349539"
-                .to_string();
+        let a = &string_to_number("1873817317893712873298173982173982173897128738912738217371897381374891378943789");
+        let b = &string_to_number("9188937128738173912371837981739817238917246812647812678394619836281693618963297");
+        let expected_a = string_to_number("-1486080468736810267748473400213603987572344688308283414544810257982300340964938");
+        let expected_b = string_to_number("303043026531734365807887908508346161442903254640489390676789939813131430349539");
         assert_eq!(extended_gcd(a, b), (expected_a, expected_b));
     }
 }
 
 // Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
-pub fn mod_inverse(a: &str, m: &str) -> Option<String> {
-    let gcd_num = string_to_number(&gcd(&a, &m));
-    if gcd_num != *ONE {
+pub fn mod_inverse(a: &BigInt, m: &BigInt) -> Option<BigInt> {
+    let gcd_num = &gcd(a, m);
+    if gcd_num != &*ONE {
         return None;
     }
 
-    let (u, _) = extended_gcd(&a, &m);
+    let (u, _) = extended_gcd(a, m);
 
-    let u_num = string_to_number(&u);
-    let m_num = string_to_number(m);
-
-    Some(number_to_string(&(u_num % m_num)))
+    Some(u % m)
 }
 
 #[cfg(test)]
@@ -454,71 +360,67 @@ mod test_mod_inverse {
 
     #[test]
     fn miniscule() {
-        let a = "3";
-        let m = "26";
-        let expected = Some("9".to_string());
+        let a = &string_to_number("3");
+        let m = &string_to_number("26");
+        let expected = Some(string_to_number("9"));
         assert_eq!(mod_inverse(a, m), expected);
     }
 
     #[test]
     fn tiny() {
-        let a = "333";
-        let m = "2613";
+        let a = &string_to_number("333");
+        let m = &string_to_number("2613");
         let expected = None;
         assert_eq!(mod_inverse(a, m), expected);
     }
 
     #[test]
     fn small() {
-        let a = "333213";
-        let m = "261312334";
-        let expected = Some("66480691".to_string());
+        let a = &string_to_number("333213");
+        let m = &string_to_number("261312334");
+        let expected = Some(string_to_number("66480691"));
         assert_eq!(mod_inverse(a, m), expected);
     }
 
     #[test]
     fn medium() {
-        let a = "3332131312321";
-        let m = "261312334131135465";
-        let expected = Some("63643812378874741".to_string());
+        let a = &string_to_number("3332131312321");
+        let m = &string_to_number("261312334131135465");
+        let expected = Some(string_to_number("63643812378874741"));
         assert_eq!(mod_inverse(a, m), expected);
     }
 
     #[test]
     fn large() {
-        let a = "33321313123211923123812";
-        let m = "261312334131135465912381278381238";
+        let a = &string_to_number("33321313123211923123812");
+        let m = &string_to_number("261312334131135465912381278381238");
         let expected = None;
         assert_eq!(mod_inverse(a, m), expected);
     }
 
     #[test]
     fn x_large() {
-        let a = "1873817317893712873298173982173982173897128738912738217371897381374891378";
-        let m = "9188937128738173912371837981739817238917246812647812678394619836281693618963297";
-        let expected = Some(
-            "-996417904483222556354083958060155179719360472118047976841259037232297184027911"
-                .to_string(),
-        );
+        let a = &string_to_number("1873817317893712873298173982173982173897128738912738217371897381374891378");
+        let m = &string_to_number("9188937128738173912371837981739817238917246812647812678394619836281693618963297");
+        let expected = Some(string_to_number("-996417904483222556354083958060155179719360472118047976841259037232297184027911"));
         assert_eq!(mod_inverse(a, m), expected);
     }
 }
 
 // Check out: https://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test
-pub fn miller_rabin(n: &str, seed: &[u8]) -> bool {
-    let n_num: BigInt = string_to_number(n);
-    let n_minus_one = &n_num - &*ONE;
+pub fn miller_rabin(n: &BigInt, seed: &[u8]) -> bool {
+    let n_minus_one = n - &*ONE;
 
-    if n_num == *TWO {
+    if n == &*TWO {
         return true;
     }
 
-    if n_num < *TWO || &n_num % &*TWO == *ZERO {
+    if n < &*TWO || n % &*TWO == *ZERO {
         return false;
     }
 
     let mut s: BigInt = ZERO.clone();
-    let mut d: BigInt = &n_num - &*ONE;
+    let mut d: BigInt = n - &*ONE;
 
     while &d % &*TWO == *ZERO {
         s += &*ONE;
@@ -530,16 +432,14 @@ pub fn miller_rabin(n: &str, seed: &[u8]) -> bool {
     // 50 here is a parameter for accuracy
     for _ in 0..50 {
         let a_num = rng.gen_bigint_range(&*TWO, &n_minus_one);
-        let a_str = number_to_string(&a_num);
 
-        let gcd_str = gcd(&a_str, &n);
-        let gcd_num = string_to_number(&gcd_str);
+        let gcd_num = gcd(&a_num, n);
 
         if gcd_num != *ONE {
             return false;
         }
 
-        let mut x_num = a_num.modpow(&d, &n_num);
+        let mut x_num = a_num.modpow(&d, n);
 
         if x_num == *ONE || x_num == n_minus_one {
             continue;
@@ -549,7 +449,7 @@ pub fn miller_rabin(n: &str, seed: &[u8]) -> bool {
         let mut r = ONE.clone();
 
         while r < s && is_witness {
-            x_num = x_num.modpow(&*TWO, &n_num);
+            x_num = x_num.modpow(&*TWO, n);
 
             if x_num == n_minus_one {
                 is_witness = false;
@@ -566,12 +466,10 @@ pub fn miller_rabin(n: &str, seed: &[u8]) -> bool {
     true
 }
 
-pub fn is_prime(n: &str, seed: &[u8]) -> bool {
-    let n_num = string_to_number(n);
+pub fn is_prime(n: &BigInt, seed: &[u8]) -> bool {
+    let n_minus_one = n - &*ONE;
 
-    let n_minus_one = &n_num - &*ONE;
-
-    if n_num < *TWO {
+    if n < &*TWO {
         return false;
     }
 
@@ -579,14 +477,14 @@ pub fn is_prime(n: &str, seed: &[u8]) -> bool {
         .iter()
         .map(|x| x.to_bigint().unwrap())
         .collect();
-    let is_small_prime = small_primes_as_bigints.contains(&n_num);
+    let is_small_prime = small_primes_as_bigints.contains(n);
 
     if is_small_prime {
         return true;
     }
 
     for prime in small_primes_as_bigints {
-        if &n_num % &prime == *ZERO {
+        if n % &prime == *ZERO {
             return false;
         }
     }
@@ -594,7 +492,7 @@ pub fn is_prime(n: &str, seed: &[u8]) -> bool {
     let bases_as_bigints: Vec<BigInt> = BASES.iter().map(|x| x.to_bigint().unwrap()).collect();
 
     for base in &bases_as_bigints {
-        if base.modpow(&n_minus_one, &n_num) != *ONE {
+        if base.modpow(&n_minus_one, n) != *ONE {
             return false;
         }
     }
@@ -608,76 +506,76 @@ mod test_is_prime_and_rabin_miller {
 
     #[test]
     fn miniscule_prime() {
-        let a = "3";
+        let a = &string_to_number("3");
         let expected = true;
         assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn miniscule_not_prime() {
-        let a = "4";
+        let a = &string_to_number("4");
         let expected = false;
         assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn tiny_prime() {
-        let a = "1049";
+        let a = &string_to_number("1049");
         let expected = true;
         assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn tiny_not_prime() {
-        let a = "1050";
+        let a = &string_to_number("1050");
         let expected = false;
         assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn small_prime() {
-        let a = "100103";
+        let a = &string_to_number("100103");
         let expected = true;
         assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn small_not_prime() {
-        let a = "100105";
+        let a = &string_to_number("100105");
         let expected = false;
         assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn medium_prime() {
-        let a = "100000015333";
+        let a = &string_to_number("100000015333");
         let expected = true;
         assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn medium_not_prime() {
-        let a = "100000015334";
+        let a = &string_to_number("100000015334");
         let expected = false;
         assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn large_prime() {
-        let a = "335184372088831";
+        let a = &string_to_number("335184372088831");
         let expected = true;
         assert_eq!(is_prime(a, test_seed()), expected);
     }
 
     #[test]
     fn large_not_prime() {
-        let a = "335184372088832";
+        let a = &string_to_number("335184372088832");
         let expected = false;
         assert_eq!(is_prime(a, test_seed()), expected);
     }
 }
 
-pub fn generate_prime(bits: usize, tries: usize, seed: &[u8]) -> Option<String> {
+pub fn generate_prime(bits: usize, tries: usize, seed: &[u8]) -> Option<BigInt> {
     let bits_minus_one = bits - 1;
     let x = pow(TWO.clone(), bits_minus_one);
     let y = &*TWO * &x;
@@ -691,11 +589,10 @@ pub fn generate_prime(bits: usize, tries: usize, seed: &[u8]) -> Option<String> 
             n += 1;
         }
 
-        let num_str = &number_to_string(&n);
-        let q = is_prime(num_str, seed);
+        let q = is_prime(&n, seed);
 
         if q {
-            return Some(number_to_string(&n));
+            return Some(n);
         }
     }
 
@@ -709,19 +606,19 @@ mod test_generate_prime {
     #[test]
     fn miniscule_prime() {
         let prime = generate_prime(2, 1000, test_seed());
-        assert_eq!(prime, Some("3".to_string()));
+        assert_eq!(prime, Some(string_to_number("3")));
     }
 
     #[test]
     fn tiny_prime() {
         let prime = generate_prime(8, 1000, test_seed());
-        assert_eq!(prime, Some("193".to_string()));
+        assert_eq!(prime, Some(string_to_number("193")));
     }
 
     #[test]
     fn medium_prime() {
         let prime = generate_prime(64, 1000, test_seed());
-        assert_eq!(prime, Some("10057321802802702503".to_string()));
+        assert_eq!(prime, Some(string_to_number("10057321802802702503")));
     }
 
     #[test]
@@ -729,10 +626,7 @@ mod test_generate_prime {
         let prime = generate_prime(256, 1000, test_seed());
         assert_eq!(
             prime,
-            Some(
-                "91585194753718779240055081770127290880143452499556598946529982336565467053363"
-                    .to_string()
-            )
+            Some(string_to_number("91585194753718779240055081770127290880143452499556598946529982336565467053363"))
         );
     }
 }
@@ -770,48 +664,42 @@ pub struct Keypair {
 impl Keypair {
     pub fn new(seed_one: &[u8], seed_two: &[u8]) -> Keypair {
         // Hardcoded to 256-bits with 1000 tries for now
-        let q_str = generate_prime(256, 1000, &seed_one).unwrap();
-        let q_num = string_to_number(&q_str);
+        let q_num = generate_prime(256, 1000, &seed_one).unwrap();
 
         // Hardcoded to 256-bits with 1000 tries for now
-        let p_str = generate_prime(256, 1000, &seed_two).unwrap();
-        let p_num = string_to_number(&p_str);
+        let p_num = generate_prime(256, 1000, &seed_two).unwrap();
 
         let n_num = &p_num * &q_num;
-        let n_str = number_to_string(&n_num);
 
-        let p_minus_one_str = number_to_string(&(&p_num - &*ONE));
-        let q_minus_one_str = number_to_string(&(&q_num - &*ONE));
+        let p_minus_one = &p_num - &*ONE;
+        let q_minus_one = &q_num - &*ONE;
 
-        let phi_str = lcm(&p_minus_one_str, &q_minus_one_str);
-        let phi_num = string_to_number(&phi_str);
+        let phi_num = lcm(&p_minus_one, &q_minus_one);
 
         let mut e_found = false;
 
         let mut rng: StdRng = SeedableRng::from_seed(from_slice(&seed_one));
 
-        let mut e_str = String::default();
+        let mut e_num = ZERO.clone();
 
         while !e_found {
-            let e_num = rng.gen_bigint_range(&*TWO, &(&phi_num - &*TWO));
+            e_num = rng.gen_bigint_range(&*TWO, &(&phi_num - &*TWO));
 
-            e_str = number_to_string(&e_num);
-            if gcd(&e_str, &phi_str) == "1" {
+            if gcd(&e_num, &phi_num) == *ONE {
                 e_found = true;
             }
         }
 
-        let mut d_str = mod_inverse(&e_str, &phi_str).unwrap();
+        let mut d_num = mod_inverse(&e_num, &phi_num).unwrap();
 
-        if &*d_str <  "0" {
-            let d_num = &n_num + string_to_number(&d_str);
-            d_str = number_to_string(&d_num);
+        if d_num <  *ZERO {
+            d_num = &n_num + d_num;
         }
 
         Keypair {
-            e: e_str,
-            d: d_str,
-            n: n_str,
+            e: number_to_string(&e_num),
+            d: number_to_string(&d_num),
+            n: number_to_string(&n_num),
         }
     }
 
