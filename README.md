@@ -18,7 +18,7 @@ Messages are filtered by each client. When a client receives a message with it's
 
 ## Prerequisites
 * A recent version of node/npm (probably node 8+ should be fine)
-* Nightly Rust (not sure of the latest working version of nightly, but `nightly-2018-07-30` is a safe bet)
+* Nightly Rust (we use the latest and greatest)
 
 ## How to Use?
 
