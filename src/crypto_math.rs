@@ -129,36 +129,42 @@ pub fn string_to_number(s: &str) -> BigInt {
 #[cfg(test)]
 mod test_string_to_number_macro {
     use super::*;
+    
     #[test]
     fn negative_small() {
         let a = string_to_number("-5");
         let b = BigInt::parse_bytes(b"-5", 10).unwrap();
         assert_eq!(a, b);
     }
+
     #[test]
     fn negative_large() {
         let a = string_to_number("-523892389328392");
         let b = BigInt::parse_bytes(b"-523892389328392", 10).unwrap();
         assert_eq!(a, b);
     }
+
     #[test]
     fn miniscule() {
         let a = string_to_number("0");
         let b = BigInt::parse_bytes(b"0", 10).unwrap();
         assert_eq!(a, b);
     }
+
     #[test]
     fn tiny() {
         let a = string_to_number("10");
         let b = BigInt::parse_bytes(b"10", 10).unwrap();
         assert_eq!(a, b);
     }
+
     #[test]
     fn small() {
         let a = string_to_number("123");
         let b = BigInt::parse_bytes(b"123", 10).unwrap();
         assert_eq!(a, b);
     }
+
     #[test]
     fn medium() {
         let a = string_to_number("123456789");
@@ -171,6 +177,7 @@ mod test_string_to_number_macro {
         let b = BigInt::parse_bytes(b"123456789123456789", 10).unwrap();
         assert_eq!(a, b);
     }
+
     #[test]
     fn x_large() {
         let a = string_to_number("123456789123456789123456789123456789123456789123456789");
@@ -180,12 +187,14 @@ mod test_string_to_number_macro {
         ).unwrap();
         assert_eq!(a, b);
     }
+
     #[test]
     fn xx_large() {
         let a = string_to_number("123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789");
         let b = BigInt::parse_bytes(b"123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789", 10).unwrap();
         assert_eq!(a, b);
     }
+
     #[test]
     fn xxx_large() {
         let a = string_to_number("123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789");
@@ -483,7 +492,7 @@ pub fn miller_rabin(n: &BigInt, seed: &[u8]) -> bool {
         return true;
     }
 
-    if n < &*TWO || n % &*TWO == *ZERO {
+    if *n < *TWO || n % &*TWO == *ZERO {
         return false;
     }
 
@@ -537,7 +546,7 @@ pub fn miller_rabin(n: &BigInt, seed: &[u8]) -> bool {
 pub fn is_prime(n: &BigInt, seed: &[u8]) -> bool {
     let n_minus_one = n - &*ONE;
 
-    if n < &*TWO {
+    if *n < *TWO {
         return false;
     }
 
@@ -761,7 +770,7 @@ impl Keypair {
         let mut d_num = mod_inverse(&e_num, &phi_num).unwrap();
 
         if d_num <  *ZERO {
-            d_num = &n_num + d_num;
+            d_num += &n_num;
         }
 
         Keypair {
