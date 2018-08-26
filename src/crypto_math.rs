@@ -31,7 +31,7 @@ lazy_static! {
 }
 
 pub fn number_to_string(num: &BigInt) -> String {
-     format!("{}", num)
+    format!("{}", num)
 }
 
 #[cfg(test)]
@@ -123,13 +123,13 @@ mod test_number_to_string {
 }
 
 pub fn string_to_number(s: &str) -> BigInt {
-     BigInt::parse_bytes(s.as_bytes(), 10).unwrap()
+    BigInt::parse_bytes(s.as_bytes(), 10).unwrap()
 }
 
 #[cfg(test)]
 mod test_string_to_number_macro {
     use super::*;
-    
+
     #[test]
     fn negative_small() {
         let a = string_to_number("-5");
@@ -263,8 +263,12 @@ mod test_gcd {
 
     #[test]
     fn x_large() {
-        let a = &string_to_number("1873817317893712873298173982173982173897128738912738217371897381374891378943789");
-        let b = &string_to_number("9188937128738173912371837981739817238917246812647812678394619836281693618963297");
+        let a = &string_to_number(
+            "1873817317893712873298173982173982173897128738912738217371897381374891378943789",
+        );
+        let b = &string_to_number(
+            "9188937128738173912371837981739817238917246812647812678394619836281693618963297",
+        );
         let expected = string_to_number("1");
         assert_eq!(gcd(a, b), expected);
     }
@@ -411,10 +415,18 @@ mod test_extended_gcd {
 
     #[test]
     fn x_large() {
-        let a = &string_to_number("1873817317893712873298173982173982173897128738912738217371897381374891378943789");
-        let b = &string_to_number("9188937128738173912371837981739817238917246812647812678394619836281693618963297");
-        let expected_a = string_to_number("-1486080468736810267748473400213603987572344688308283414544810257982300340964938");
-        let expected_b = string_to_number("303043026531734365807887908508346161442903254640489390676789939813131430349539");
+        let a = &string_to_number(
+            "1873817317893712873298173982173982173897128738912738217371897381374891378943789",
+        );
+        let b = &string_to_number(
+            "9188937128738173912371837981739817238917246812647812678394619836281693618963297",
+        );
+        let expected_a = string_to_number(
+            "-1486080468736810267748473400213603987572344688308283414544810257982300340964938",
+        );
+        let expected_b = string_to_number(
+            "303043026531734365807887908508346161442903254640489390676789939813131430349539",
+        );
         assert_eq!(extended_gcd(a, b), (expected_a, expected_b));
     }
 }
@@ -477,9 +489,15 @@ mod test_mod_inverse {
 
     #[test]
     fn x_large() {
-        let a = &string_to_number("1873817317893712873298173982173982173897128738912738217371897381374891378");
-        let m = &string_to_number("9188937128738173912371837981739817238917246812647812678394619836281693618963297");
-        let expected = Some(string_to_number("-996417904483222556354083958060155179719360472118047976841259037232297184027911"));
+        let a = &string_to_number(
+            "1873817317893712873298173982173982173897128738912738217371897381374891378",
+        );
+        let m = &string_to_number(
+            "9188937128738173912371837981739817238917246812647812678394619836281693618963297",
+        );
+        let expected = Some(string_to_number(
+            "-996417904483222556354083958060155179719360472118047976841259037232297184027911",
+        ));
         assert_eq!(mod_inverse(a, m), expected);
     }
 }
@@ -703,7 +721,9 @@ mod test_generate_prime {
         let prime = generate_prime(256, 1000, test_seed());
         assert_eq!(
             prime,
-            Some(string_to_number("91585194753718779240055081770127290880143452499556598946529982336565467053363"))
+            Some(string_to_number(
+                "91585194753718779240055081770127290880143452499556598946529982336565467053363"
+            ))
         );
     }
 }
@@ -719,7 +739,7 @@ fn from_slice(bytes: &[u8]) -> [u8; 32] {
 // Fixes: https://github.com/ColbyCypherSociety/ChatDemo/issues/21
 // Ref: https://stackoverflow.com/questions/46378637/how-to-make-a-variable-with-a-scope-lifecycle-for-all-test-functions-in-a-rust-t
 #[allow(dead_code)]
-fn test_seed<'a>() -> &'a[u8] {
+fn test_seed<'a>() -> &'a [u8] {
     &[
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1,
@@ -769,7 +789,7 @@ impl Keypair {
 
         let mut d_num = mod_inverse(&e_num, &phi_num).unwrap();
 
-        if d_num <  *ZERO {
+        if d_num < *ZERO {
             d_num += &n_num;
         }
 
@@ -794,9 +814,8 @@ impl Keypair {
             let to_decrypt = string_to_number(c);
             let decrypted = to_decrypt.modpow(&private_key, &modulus);
             let decrypted_u8 = decrypted.to_u8();
-            match decrypted_u8 {
-                Some(d_u8) => decrypted_values.push(d_u8 as char),
-                _ => (),
+            if let Some(d_u8) = decrypted_u8 {
+                decrypted_values.push(d_u8 as char)
             }
         }
 
