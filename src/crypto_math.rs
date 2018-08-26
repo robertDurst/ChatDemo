@@ -30,6 +30,7 @@ lazy_static! {
     static ref TWO: BigInt = string_to_number("2");
 }
 
+/// a helper function for going from a BigInt struct to a String.
 pub fn number_to_string(num: &BigInt) -> String {
     format!("{}", num)
 }
@@ -122,6 +123,7 @@ mod test_number_to_string {
     }
 }
 
+/// a helper function for going from a String to a BigInt struct.
 pub fn string_to_number(s: &str) -> BigInt {
     BigInt::parse_bytes(s.as_bytes(), 10).unwrap()
 }
@@ -203,7 +205,10 @@ mod test_string_to_number_macro {
     }
 }
 
-// Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
+/// calculates and returns the greatest common denominator of two BigInt's.
+/// 
+/// ## Reference
+/// Ported from: [http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt](http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt)
 pub fn gcd<'a>(a: &'a BigInt, b: &'a BigInt) -> BigInt {
     let mut x = a.clone();
     let mut y = b.clone();
@@ -290,6 +295,10 @@ mod test_gcd {
     }
 }
 
+/// calculates and returns the lowest common multiple of two ints.
+/// 
+/// ## Reference
+/// Ref: [https://www.geeksforgeeks.org/program-to-find-lcm-of-two-numbers/](https://www.geeksforgeeks.org/program-to-find-lcm-of-two-numbers/)
 pub fn lcm<'a>(a: &'a BigInt, b: &'a BigInt) -> BigInt {
     let numerator = a * b;
     let denominator = gcd(a, b);
@@ -334,7 +343,11 @@ mod test_lcm {
     }
 }
 
-// Based on pseudocode from: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
+/// an extension of the gcd function, the extended euclidean algorithm derives the Bézout coefficients for
+/// two BigInt's.
+/// 
+/// ## Reference
+/// Based on pseudocode from: [https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm](https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm).
 pub fn extended_gcd(a: &BigInt, b: &BigInt) -> (BigInt, BigInt) {
     let mut a_num = a.clone();
     let mut b_num = b.clone();
@@ -431,7 +444,10 @@ mod test_extended_gcd {
     }
 }
 
-// Ported from: http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt
+/// returns the modular inverse of a BigInt modulo n (another BigInt).
+/// 
+/// ## Reference
+/// Ported from: [http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt](http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt)
 pub fn mod_inverse(a: &BigInt, m: &BigInt) -> Option<BigInt> {
     let gcd_num = &gcd(a, m);
     if gcd_num != &*ONE {
@@ -502,7 +518,10 @@ mod test_mod_inverse {
     }
 }
 
-// Check out: https://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test
+/// probabilistically deduces whether a given number is prime.
+/// 
+/// ## Reference
+/// Check out: [https://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test](https://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test)
 pub fn miller_rabin(n: &BigInt, seed: &[u8]) -> bool {
     let n_minus_one = n - &*ONE;
 
@@ -561,6 +580,11 @@ pub fn miller_rabin(n: &BigInt, seed: &[u8]) -> bool {
     true
 }
 
+/// determines whether a given number is prime by first running some simple primality tests through a small set of
+/// known primes and bases, and then, if all these basic tests pass, returns the result of the Miller-Rabin test.
+/// 
+/// ## Reference
+/// Ported from: [http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt](http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt)
 pub fn is_prime(n: &BigInt, seed: &[u8]) -> bool {
     let n_minus_one = n - &*ONE;
 
@@ -670,6 +694,10 @@ mod test_is_prime_and_rabin_miller {
     }
 }
 
+/// generates a random prime for a given seed.
+/// 
+/// ## Reference
+/// Ported from: [http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt](http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt)
 pub fn generate_prime(bits: usize, tries: usize, seed: &[u8]) -> Option<BigInt> {
     let bits_minus_one = bits - 1;
     let x = pow(TWO.clone(), bits_minus_one);
@@ -728,7 +756,10 @@ mod test_generate_prime {
     }
 }
 
-// Ref: https://stackoverflow.com/questions/29570607/is-there-a-good-way-to-convert-a-vect-to-an-array
+/// converts a vector of bytes to an array of u8's.
+/// 
+/// ## Reference
+/// Ref: https://stackoverflow.com/questions/29570607/is-there-a-good-way-to-convert-a-vect-to-an-array
 fn from_slice(bytes: &[u8]) -> [u8; 32] {
     let mut array = [0; 32];
     let bytes = &bytes[..array.len()]; // panics if not enough data
@@ -746,19 +777,21 @@ fn test_seed<'a>() -> &'a [u8] {
     ]
 }
 
+/// stores the information for a given RSA keypair.
 #[wasm_bindgen]
 #[derive(Debug)]
 pub struct Keypair {
-    // Public key
+    /// Public key
     e: String,
-    // Private key
+    /// Private key
     d: String,
-    // Modulo (both public and private)
+    /// Modulo (both public and private)
     n: String,
 }
 
 #[wasm_bindgen]
 impl Keypair {
+    /// randomly generates a new keypair based on two seeds.
     pub fn new(seed_one: &[u8], seed_two: &[u8]) -> Keypair {
         // Hardcoded to 256-bits with 1000 tries for now
         let q_num = generate_prime(256, 1000, &seed_one).unwrap();
@@ -800,10 +833,13 @@ impl Keypair {
         }
     }
 
+    /// nicely outputs a formatted public key for use in the javascript code.
     pub fn public_key_display_wasm(&self) -> String {
         format!("({}, {})", self.e, self.n)
     }
 
+    /// given a ciphertext, attempts to decrypt based on the private key and modulo from this keypair. Performs
+    /// simple decryption based on RSA algorithm.
     pub fn decrypt(&self, ciphertext: &str) -> String {
         let private_key = string_to_number(&self.d);
         let modulus = string_to_number(&self.n);
@@ -853,6 +889,7 @@ mod test_generate_key {
     }
 }
 
+/// given a public key (e, n), encrypts message m for this public key using RSA.
 #[wasm_bindgen]
 pub fn encrypt(m: &str, e: &str, n: &str) -> String {
     let public_key = string_to_number(e);
