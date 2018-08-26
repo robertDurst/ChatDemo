@@ -206,7 +206,7 @@ mod test_string_to_number_macro {
 }
 
 /// calculates and returns the greatest common denominator of two BigInt's.
-/// 
+///
 /// ## Reference
 /// Ported from: [http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt](http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt)
 pub fn gcd<'a>(a: &'a BigInt, b: &'a BigInt) -> BigInt {
@@ -296,7 +296,7 @@ mod test_gcd {
 }
 
 /// calculates and returns the lowest common multiple of two ints.
-/// 
+///
 /// ## Reference
 /// Ref: [https://www.geeksforgeeks.org/program-to-find-lcm-of-two-numbers/](https://www.geeksforgeeks.org/program-to-find-lcm-of-two-numbers/)
 pub fn lcm<'a>(a: &'a BigInt, b: &'a BigInt) -> BigInt {
@@ -345,7 +345,7 @@ mod test_lcm {
 
 /// an extension of the gcd function, the extended euclidean algorithm derives the Bézout coefficients for
 /// two BigInt's.
-/// 
+///
 /// ## Reference
 /// Based on pseudocode from: [https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm](https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm).
 pub fn extended_gcd(a: &BigInt, b: &BigInt) -> (BigInt, BigInt) {
@@ -445,7 +445,7 @@ mod test_extended_gcd {
 }
 
 /// returns the modular inverse of a BigInt modulo n (another BigInt).
-/// 
+///
 /// ## Reference
 /// Ported from: [http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt](http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt)
 pub fn mod_inverse(a: &BigInt, m: &BigInt) -> Option<BigInt> {
@@ -519,7 +519,7 @@ mod test_mod_inverse {
 }
 
 /// probabilistically deduces whether a given number is prime.
-/// 
+///
 /// ## Reference
 /// Check out: [https://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test](https://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test)
 pub fn miller_rabin(n: &BigInt, seed: &[u8]) -> bool {
@@ -582,7 +582,7 @@ pub fn miller_rabin(n: &BigInt, seed: &[u8]) -> bool {
 
 /// determines whether a given number is prime by first running some simple primality tests through a small set of
 /// known primes and bases, and then, if all these basic tests pass, returns the result of the Miller-Rabin test.
-/// 
+///
 /// ## Reference
 /// Ported from: [http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt](http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt)
 pub fn is_prime(n: &BigInt, seed: &[u8]) -> bool {
@@ -695,7 +695,7 @@ mod test_is_prime_and_rabin_miller {
 }
 
 /// generates a random prime for a given seed.
-/// 
+///
 /// ## Reference
 /// Ported from: [http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt](http://www.maths.dk/teaching/courses/math398-spring2017/code/cryptomath.txt)
 pub fn generate_prime(bits: usize, tries: usize, seed: &[u8]) -> Option<BigInt> {
@@ -757,7 +757,7 @@ mod test_generate_prime {
 }
 
 /// converts a vector of bytes to an array of u8's.
-/// 
+///
 /// ## Reference
 /// Ref: https://stackoverflow.com/questions/29570607/is-there-a-good-way-to-convert-a-vect-to-an-array
 fn from_slice(bytes: &[u8]) -> [u8; 32] {
@@ -805,20 +805,9 @@ impl Keypair {
         let q_minus_one = &q_num - &*ONE;
 
         let phi_num = lcm(&p_minus_one, &q_minus_one);
-
-        let mut e_found = false;
-
-        let mut rng: StdRng = SeedableRng::from_seed(from_slice(&seed_one));
-
-        let mut e_num = ZERO.clone();
-
-        while !e_found {
-            e_num = rng.gen_bigint_range(&*TWO, &(&phi_num - &*TWO));
-
-            if gcd(&e_num, &phi_num) == *ONE {
-                e_found = true;
-            }
-        }
+        // Hard Code in 65537.
+        // Ref: https://www.reddit.com/r/crypto/comments/6363di/how_do_computers_choose_the_rsa_value_for_e/
+        let e_num = string_to_number("65537");
 
         let mut d_num = mod_inverse(&e_num, &phi_num).unwrap();
 
