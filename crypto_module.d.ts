@@ -1,5 +1,5 @@
 /* tslint:disable */
-export function encrypt(arg0: string, arg1: string, arg2: string): string;
+export function encrypt(arg0: string, arg1: string): string;
 
 export class Keypair {
 free(): void;
