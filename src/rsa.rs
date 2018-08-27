@@ -27,11 +27,11 @@ pub struct Keypair {
 impl Keypair {
     /// randomly generates a new keypair based on two seeds.
     pub fn new(seed_one: &[u8], seed_two: &[u8]) -> Keypair {
-        // Hardcoded to 256-bits with 1000 tries for now
-        let q_num = generate_prime(256, 1000, &seed_one).unwrap();
+        // Hardcoded to 1024-bits with 1000 tries for now
+        let q_num = generate_prime(1024, 1000, &seed_one).unwrap();
 
-        // Hardcoded to 256-bits with 1000 tries for now
-        let p_num = generate_prime(256, 1000, &seed_two).unwrap();
+        // Hardcoded to 1024-bits with 1000 tries for now
+        let p_num = generate_prime(1024, 1000, &seed_two).unwrap();
 
         let n_num = &p_num * &q_num;
 
@@ -46,7 +46,7 @@ impl Keypair {
         let mut d_num = mod_inverse(&e_num, &phi_num).unwrap();
 
         if d_num < *ZERO {
-            d_num += &n_num;
+            d_num += &phi_num;
         }
 
         Keypair {

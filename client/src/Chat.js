@@ -57,7 +57,6 @@ class Chat extends React.Component {
 
             if (data.split(":\n")[0] == `[${keypair.public_key_display_wasm()}]`) {
                 const plaintext = data.split(":\n")[1].slice(1).trim();
-                console.log(plaintext)
                 try {
                     const decrypted = obj.state.keypair.decrypt(plaintext);
                     alert("You've got mail!");
