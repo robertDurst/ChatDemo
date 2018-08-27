@@ -2,6 +2,8 @@ import React from 'react';
 
 // Needed because of some javascript weirdness
 import 'babel-polyfill';
+import ChatBubble from './components/ChatBubble';
+import ChatInput from './components/ChatInput';
 
 const js = import("../../crypto_module");
 
@@ -16,6 +18,7 @@ class Chat extends React.Component {
 
         this.send = this.send.bind(this);
         this.encrypt = this.encrypt.bind(this);
+        this.populate = this.populate.bind(this);
         this.onChangeMessage = this.onChangeMessage.bind(this);
         this.onChangeEncrypt = this.onChangeEncrypt.bind(this);
       }
@@ -66,21 +69,21 @@ class Chat extends React.Component {
                     alert("You've got mail!");
                     temp.push({
                         message: `${decrypted}`,
-                        bgColor: 'green',
+                        bgColor: '#558B2F',
                         color: 'white',
                     });
                 } catch(err) {
                     temp.push({
                         message: "Error decrypting...",
-                        bgColor: 'red',
-                        color: 'black',
+                        bgColor: '#BF360C',
+                        color: 'white',
                     });
                 }
             } else {
                 temp.push({
                     message: data,
-                    bgColor: 'white',
-                    color: 'gray',
+                    bgColor: '#E0E0E0',
+                    color: 'black',
                 });
             }
             obj.setState({
@@ -94,7 +97,7 @@ class Chat extends React.Component {
 
             temp.push({
                 message: data,
-                bgColor: 'gray',
+                bgColor: '#82B1FF',
                 color: 'black',
             });
             
@@ -109,8 +112,9 @@ class Chat extends React.Component {
             const temp = obj.state.messages;
 
             temp.push({
-                message: `User joined: ${data}`,
-                bgColor: 'yellow',
+                message: `User joined`,
+                data: data,
+                bgColor: '#E0E0E0',
                 color: 'black',
             });
             
@@ -210,21 +214,35 @@ class Chat extends React.Component {
         }
     }
 
+    populate(event) {
+        this.setState({
+            encrypt: event.target.text
+        })
+    }
+
     render() {
         return (
             <div>
                 <ul id="messages">
-                    {this.state.messages.map(x => <li style={{backgroundColor: x.bgColor, color: x.color}}>{x.message}</li>)}
+                    {this.state.messages.map(x => {
+                        return (
+                            <ChatBubble bgColor={x.bgColor} color={x.color}>
+                                {x.message} {x.data != null && <a href="#" onClick={(e) => this.populate(e)}>{x.data}</a>} 
+                            </ChatBubble>
+                        )
+                    })}
                 </ul>
                 <form action="">
-                    <div className="inputbox">
-                        <input autoComplete="off" onChange={this.onChangeMessage} value={this.state.message}/>
-                        <button onClick={this.send} type="button">Send</button>
-                    </div>
-                    <div className="inputbox">
-                        <input autoComplete="off" onChange={this.onChangeEncrypt} value={this.state.encrypt}/>
-                        <button onClick={this.encrypt} type="button">Encrypt</button>
-                    </div>
+                    <ChatInput onChange={this.onChangeMessage}
+                               value={this.state.message}
+                               onClick={this.send}>
+                        Send
+                    </ChatInput>
+                    <ChatInput onChange={this.onChangeEncrypt}
+                               value={this.state.encrypt}
+                               onClick={this.encrypt}>
+                        Encrypt
+                    </ChatInput>
                 </form>
                 <div style={{ float:"left", clear: "both" }}
                     ref={(el) => { this.messagesEnd = el; }}>

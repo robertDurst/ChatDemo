@@ -5,27 +5,30 @@
 }
 
 body { 
-    font: 25px Helvetica, Arial; 
+    font: 15px Helvetica, Arial;
 }
 
 form { 
-    background: #000; 
-    padding: 3px; position: fixed; 
+    padding: 10px; position: fixed;
+    background-color: #eee;
     bottom: 0; 
     width: 100%; 
 }
 
 form input { 
-    border: 0; 
+    border: 1px solid darkgray;
+    background-color: white;
+    border-radius: 3px;
     padding: 10px; 
     width: 90%;
-    margin-right: .5%; 
+    margin-right: 10px;
     font: 12px Helvetica, Arial;
 }
 
 form button {
     width: 9%; 
-    background: rgb(130, 224, 255); 
+    background: #82B1FF;
+    border-radius: 3px;
     border: none;
     padding: 10px; 
     font: 12px Helvetica, Arial;
@@ -38,15 +41,88 @@ form button {
     margin-bottom: 150px; 
 }
 
-#messages li { 
-    padding: 5px 10px; 
+.chat-bubble {
+    width: 75%;
+    margin: 0 auto;
+    padding: 20px 20px 20px 20px;
+    border-radius: 3px;
+    margin-bottom: 10px;
     word-wrap: break-word;
- }
+}
 
-#messages li:nth-child(odd) { 
-    background: #eee; 
+.chat-bubble:first-child {
+    margin-bottom: 0;
 }
 
 .inputbox { 
-    margin: 5px 5px; 
+    margin: 0 auto; 
+    width: 80%;
+}
+
+.inputbox:nth-child(even) {
+    margin-top: 5px;
+}
+
+@media only screen and (max-width: 1025px) {
+    .inputbox {
+        width: 100%;
+        margin: 0 auto;
+        display: inline-block;
+    }
+
+    form input {
+        width: 65%;
+    }
+
+    form button {
+        width: 31%;
+    }
+} 
+
+@media only screen and (max-width: 992px) {
+    .inputbox {
+        width: 100%;
+        margin: 0 auto;
+        display: inline-block;
+    }
+
+    form input {
+        width: 65%;
+    }
+
+    form button {
+        width: 31%;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .inputbox {
+        width: 100%;
+        margin: 0 auto;
+        display: inline-block;
+    }
+
+    form input {
+        width: 65%;
+    }
+
+    form button {
+        width: 31%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .inputbox {
+        width: 100%;
+        margin: 0 auto;
+        display: inline-block;
+    }
+
+    form input {
+        width: 65%;
+    }
+
+    form button {
+        width: 31%;
+    }
 }
