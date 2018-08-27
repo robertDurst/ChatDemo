@@ -171,9 +171,15 @@ class Chat extends React.Component {
     }
 
     onChangeMessage(e) {
-        this.setState({
-            message: e.target.value,
-        })
+        if (e.target.value == "" ||
+            e.target.value.match(/^\d+$/) && 
+            Number(e.target.value) < 2147483647 &&
+            Number(e.target.value) > -1
+        ) {
+            this.setState({
+                message: e.target.value,
+            })
+        }
     }
 
     send() {

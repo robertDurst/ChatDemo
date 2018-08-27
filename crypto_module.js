@@ -56,16 +56,15 @@ function passStringToWasm(arg) {
 }
 /**
 * given a public key (e, n), encrypts message m for this public key using RSA.
-* @param {string} arg0
+* @param {number} arg0
 * @param {string} arg1
 * @returns {string}
 */
 export function encrypt(arg0, arg1) {
-    const [ptr0, len0] = passStringToWasm(arg0);
     const [ptr1, len1] = passStringToWasm(arg1);
     const retptr = globalArgumentPtr();
     try {
-        wasm.encrypt(retptr, ptr0, len0, ptr1, len1);
+        wasm.encrypt(retptr, arg0, ptr1, len1);
         const mem = getUint32Memory();
         const rustptr = mem[retptr / 4];
         const rustlen = mem[retptr / 4 + 1];
@@ -76,7 +75,6 @@ export function encrypt(arg0, arg1) {
         
         
     } finally {
-        wasm.__wbindgen_free(ptr0, len0 * 1);
         wasm.__wbindgen_free(ptr1, len1 * 1);
         
     }
@@ -145,24 +143,15 @@ export class Keypair {
     * given a ciphertext, attempts to decrypt based on the private key and modulo from this keypair. Performs
     * simple decryption based on RSA algorithm.
     * @param {string} arg0
-    * @returns {string}
+    * @returns {number}
     */
     decrypt(arg0) {
         if (this.ptr === 0) {
             throw new Error('Attempt to use a moved value');
         }
         const [ptr0, len0] = passStringToWasm(arg0);
-        const retptr = globalArgumentPtr();
         try {
-            wasm.keypair_decrypt(retptr, this.ptr, ptr0, len0);
-            const mem = getUint32Memory();
-            const rustptr = mem[retptr / 4];
-            const rustlen = mem[retptr / 4 + 1];
-            
-            const realRet = getStringFromWasm(rustptr, rustlen).slice();
-            wasm.__wbindgen_free(rustptr, rustlen * 1);
-            return realRet;
-            
+            return wasm.keypair_decrypt(this.ptr, ptr0, len0);
             
         } finally {
             wasm.__wbindgen_free(ptr0, len0 * 1);
