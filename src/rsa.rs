@@ -17,8 +17,6 @@ lazy_static! {
 #[wasm_bindgen]
 #[derive(Debug)]
 pub struct Keypair {
-    /// Public key
-    e: String,
     /// Private key
     d: String,
     /// Modulo (both public and private)
@@ -29,11 +27,11 @@ pub struct Keypair {
 impl Keypair {
     /// randomly generates a new keypair based on two seeds.
     pub fn new(seed_one: &[u8], seed_two: &[u8]) -> Keypair {
-        // Hardcoded to 256-bits with 1000 tries for now
-        let q_num = generate_prime(256, 1000, &seed_one).unwrap();
+        // Hardcoded to 1024-bits with 1000 tries for now
+        let q_num = generate_prime(1024, 1000, &seed_one).unwrap();
 
-        // Hardcoded to 256-bits with 1000 tries for now
-        let p_num = generate_prime(256, 1000, &seed_two).unwrap();
+        // Hardcoded to 1024-bits with 1000 tries for now
+        let p_num = generate_prime(1024, 1000, &seed_two).unwrap();
 
         let n_num = &p_num * &q_num;
 
@@ -48,39 +46,37 @@ impl Keypair {
         let mut d_num = mod_inverse(&e_num, &phi_num).unwrap();
 
         if d_num < *ZERO {
-            d_num += &n_num;
+            d_num += &phi_num;
         }
 
         Keypair {
-            e: number_to_string(&e_num),
             d: number_to_string(&d_num),
             n: number_to_string(&n_num),
         }
     }
 
     /// nicely outputs a formatted public key for use in the javascript code.
+    /// improved since 0.2.0. Now outputs just n as a radix 32 string similar
+    /// to how it is done here: http://gauss.ececs.uc.edu/Courses/c653/project/radix_32.html
     pub fn public_key_display_wasm(&self) -> String {
-        format!("({}, {})", self.e, self.n)
+        format!("{}", string_to_number(&self.n).to_str_radix(32))
     }
 
     /// given a ciphertext, attempts to decrypt based on the private key and modulo from this keypair. Performs
     /// simple decryption based on RSA algorithm.
-    pub fn decrypt(&self, ciphertext: &str) -> String {
+    pub fn decrypt(&self, c: &str) -> i32 {
         let private_key = string_to_number(&self.d);
         let modulus = string_to_number(&self.n);
+        let ciphertext = string_to_number(c);
 
-        let mut decrypted_values: Vec<char> = Vec::new();
-
-        for c in ciphertext.split(',') {
-            let to_decrypt = string_to_number(c);
-            let decrypted = to_decrypt.modpow(&private_key, &modulus);
-            let decrypted_u8 = decrypted.to_u8();
-            if let Some(d_u8) = decrypted_u8 {
-                decrypted_values.push(d_u8 as char)
-            }
+        let decrypted = ciphertext.modpow(&private_key, &modulus);
+        
+        let decrypted_i32 = decrypted.to_i32();
+        if let Some(d_i32) = decrypted_i32 {
+            return d_i32
         }
-
-        decrypted_values.iter().collect()
+        
+        return -1;
     }
 }
 
@@ -104,7 +100,7 @@ mod test_generate_key {
         let k = Keypair::new(seed_one, seed_two);
 
         // Capture all the variables for encryption and decryption
-        let e = string_to_number(&k.e);
+        let e = string_to_number("65537");
         let d = string_to_number(&k.d);
         let n = string_to_number(&k.n);
 
@@ -119,21 +115,15 @@ mod test_generate_key {
 
 /// given a public key (e, n), encrypts message m for this public key using RSA.
 #[wasm_bindgen]
-pub fn encrypt(m: &str, e: &str, n: &str) -> String {
-    let public_key = string_to_number(e);
-    let modulus = string_to_number(n);
+pub fn encrypt(m: i32, n: &str) -> String {
+    let plaintext = string_to_number(&format!("{}", m));
+    // receive n as hex and convert back to decimal
+    let modulus = BigInt::parse_bytes(n.as_bytes(), 32).unwrap();
+    let public_key = string_to_number("65537");
+    
+    let encrypted = plaintext.modpow(&public_key, &modulus);
 
-    let mut encrypted_values = String::default();
-
-    for c in m.bytes() {
-        let c_str = c.to_string();
-        let to_encrypt = string_to_number(&c_str);
-        let encrypted = to_encrypt.modpow(&public_key, &modulus);
-
-        encrypted_values = format!("{},{}", encrypted_values, number_to_string(&encrypted));
-    }
-
-    encrypted_values
+    number_to_string(&encrypted)
 }
 
 #[cfg(test)]
@@ -156,9 +146,11 @@ mod test_encrypt_decrypt {
         let k = Keypair::new(seed_one, seed_two);
 
         // Message and ciphertext
-        let plaintext = "HelloWorld!";
-        let ciphertext = encrypt(plaintext, &k.e, &k.n);
-        let decrypted = k.decrypt(&ciphertext[1..]);
+        let plaintext = 32;
+        let modulus = k.public_key_display_wasm();
+        
+        let ciphertext = encrypt(plaintext, &modulus);
+        let decrypted = k.decrypt(&ciphertext);
 
         assert_eq!(plaintext, decrypted);
     }
