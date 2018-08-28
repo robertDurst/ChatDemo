@@ -55,6 +55,7 @@ function passStringToWasm(arg) {
     return [ptr, buf.length];
 }
 /**
+* given a public key (e, n), encrypts message m for this public key using RSA.
 * @param {string} arg0
 * @param {string} arg1
 * @param {string} arg2
@@ -86,6 +87,7 @@ export function encrypt(arg0, arg1, arg2) {
 }
 
 /**
+* stores the information for a given RSA keypair.
 */
 export class Keypair {
     
@@ -103,6 +105,7 @@ export class Keypair {
         wasm.__wbg_keypair_free(ptr);
     }
     /**
+    * randomly generates a new keypair based on two seeds.
     * @param {Uint8Array} arg0
     * @param {Uint8Array} arg1
     * @returns {Keypair}
@@ -121,6 +124,7 @@ export class Keypair {
         
     }
     /**
+    * nicely outputs a formatted public key for use in the javascript code.
     * @returns {string}
     */
     public_key_display_wasm() {
@@ -139,6 +143,8 @@ export class Keypair {
         
     }
     /**
+    * given a ciphertext, attempts to decrypt based on the private key and modulo from this keypair. Performs
+    * simple decryption based on RSA algorithm.
     * @param {string} arg0
     * @returns {string}
     */
