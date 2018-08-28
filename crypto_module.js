@@ -58,16 +58,14 @@ function passStringToWasm(arg) {
 * given a public key (e, n), encrypts message m for this public key using RSA.
 * @param {string} arg0
 * @param {string} arg1
-* @param {string} arg2
 * @returns {string}
 */
-export function encrypt(arg0, arg1, arg2) {
+export function encrypt(arg0, arg1) {
     const [ptr0, len0] = passStringToWasm(arg0);
     const [ptr1, len1] = passStringToWasm(arg1);
-    const [ptr2, len2] = passStringToWasm(arg2);
     const retptr = globalArgumentPtr();
     try {
-        wasm.encrypt(retptr, ptr0, len0, ptr1, len1, ptr2, len2);
+        wasm.encrypt(retptr, ptr0, len0, ptr1, len1);
         const mem = getUint32Memory();
         const rustptr = mem[retptr / 4];
         const rustlen = mem[retptr / 4 + 1];
@@ -80,7 +78,6 @@ export function encrypt(arg0, arg1, arg2) {
     } finally {
         wasm.__wbindgen_free(ptr0, len0 * 1);
         wasm.__wbindgen_free(ptr1, len1 * 1);
-        wasm.__wbindgen_free(ptr2, len2 * 1);
         
     }
     
@@ -125,6 +122,8 @@ export class Keypair {
     }
     /**
     * nicely outputs a formatted public key for use in the javascript code.
+    * improved since 0.2.0. Now outputs just n as a radix 32 string similar
+    * to how it is done here: http://gauss.ececs.uc.edu/Courses/c653/project/radix_32.html
     * @returns {string}
     */
     public_key_display_wasm() {

@@ -58,11 +58,7 @@ class Chat extends React.Component {
         socket.on('MESSAGE', function(data){
             const temp = obj.state.messages;
 
-            if (
-                data.includes('(') && 
-                data.includes(')') && 
-                data.split(":\n")[0] == `[${keypair.public_key_display_wasm()}]`
-            ) {
+            if (data.split(":\n")[0] == `[${keypair.public_key_display_wasm()}]`) {
                 const plaintext = data.split(":\n")[1].slice(1).trim();
                 try {
                     const decrypted = obj.state.keypair.decrypt(plaintext);
@@ -198,10 +194,8 @@ class Chat extends React.Component {
 
     encrypt() {
         try {
-            const keypair = this.state.encrypt.replace(/\(|\)/g, "").split(",");
-            const e = keypair[0].trim();
-            const n = keypair[1].trim();
-            const encrypted = this.state.crypto.encrypt(this.state.message, e, n);
+            const n = this.state.encrypt.trim();
+            const encrypted = this.state.crypto.encrypt(this.state.message, n);
             
             this.setState({
                 encrypt: '',
