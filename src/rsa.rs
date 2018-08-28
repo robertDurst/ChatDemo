@@ -48,7 +48,7 @@ impl Keypair {
         let mut d_num = mod_inverse(&e_num, &phi_num).unwrap();
 
         if d_num < *ZERO {
-            d_num += &n_num;
+            d_num += &phi_num;
         }
 
         Keypair {
