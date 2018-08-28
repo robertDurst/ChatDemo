@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/ColbyCypherSociety/ChatDemo.svg?branch=master)](https://travis-ci.org/ColbyCypherSociety/ChatDemo)<br>
 A live demonstration of private communication on a public channel. 
 
-<div style="center"><img src="https://imgur.com/1MooWWG.png"></div>
+<div style="center"><img src="https://imgur.com/WLDbRZi.png"></div>
 
 ## How it Works
 
@@ -10,11 +10,11 @@ We utilize simple web sockets via [socket.io](http://socket.io/) to create a cen
 
 Before joining the chat room, the user generates a public key `[e,n]` and private key `[d,n]`. After generating the keys, the client *Registers* with the chat server by sending its public key which is broadcasted to all users.
 
-Once the user has joined they can send unencrypted or encrypted messages. To send encrypted messages, they can insert a joined user's public key into the *encrypt* field and the message they want to encrypt in the *send* field. After clicking the encrypt button, their message will be encrypted and replace the plaintext in the *send* field. 
+Once the user has joined they can send unencrypted or encrypted messages. To send encrypted messages, they can click on a joined user's public key which will be filled into the *encrypt* field and write the message they want to encrypt in the *send* field. After clicking the encrypt button, their message will be encrypted and replace the plaintext in the *send* field. 
 
 Messages are filtered by each client. When a client receives a message with it's public key as the header, it will automatically decrypt the message and alert the user that a message was received.
 
-<div style="center"><img src="https://imgur.com/FsOz0NK.png"></div>
+<div style="center"><img src="https://imgur.com/ldWBZpO.png"></div>
 
 ## Prerequisites
 * A recent version of node/npm (probably node 8+ should be fine)
