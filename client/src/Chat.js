@@ -14,6 +14,7 @@ class Chat extends React.Component {
           messages: [],
           message: '',
           encrypt: '',
+          canSend: false,
         };
 
         this.send = this.send.bind(this);
@@ -183,6 +184,7 @@ class Chat extends React.Component {
         this.state.socket.emit('MESSAGE', this.state.message);
         this.setState({
             message: '',
+            canSend: false,
         });
     }
 
@@ -200,6 +202,7 @@ class Chat extends React.Component {
             this.setState({
                 encrypt: '',
                 message: `[${this.state.encrypt}]:\n${encrypted}`,
+                canSend: true,
             });
         } catch(err) {
             this.setState({
@@ -227,14 +230,24 @@ class Chat extends React.Component {
                     })}
                 </ul>
                 <form action="">
-                    <ChatInput onChange={this.onChangeMessage}
-                               value={this.state.message}
-                               onClick={this.send}>
+                    <ChatInput 
+                        onChange={this.onChangeMessage}
+                        value={this.state.message}
+                        onClick={this.send}
+                        placeholder={"Message: [type message to encrypt]"}
+                        buttonDisabled={this.state.canSend}
+                        inputDisabled={false}
+                    >
                         Send
                     </ChatInput>
-                    <ChatInput onChange={this.onChangeEncrypt}
-                               value={this.state.encrypt}
-                               onClick={this.encrypt}>
+                    <ChatInput 
+                        onChange={this.onChangeEncrypt}
+                        value={this.state.encrypt}
+                        onClick={this.encrypt}
+                        placeholder={"Recipient: [click a user public key]"}
+                        buttonDisabled={this.state.encrypt.length > 0 && this.state.message.length > 0}
+                        inputDisabled={true}
+                    >
                         Encrypt
                     </ChatInput>
                 </form>
