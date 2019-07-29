@@ -1,5 +1,4 @@
 # Chat Demo
-[![Build Status](https://travis-ci.org/ColbyCypherSociety/ChatDemo.svg?branch=master)](https://travis-ci.org/ColbyCypherSociety/ChatDemo)<br>
 A live demonstration of private communication on a public channel. 
 
 <div style="center"><img src="https://imgur.com/WLDbRZi.png"></div>
@@ -24,7 +23,7 @@ Messages are filtered by each client. When a client receives a message with it's
 
 ### Setup
 ```shell
-git clone https://github.com/ColbyCypherSociety/ChatDemo.git
+git clone https://github.com/robertDurst/ChatDemo.git
 cd ChatDemo
 npm install
 npm run build-debug // or npm run build-release
@@ -39,8 +38,6 @@ npm run client
 ```shell
 npm run server
 ```
-
-**Note:** current client utilizes server running at: https://enigmatic-savannah-85282.herokuapp.com/
 
 ### Test
 ```shell
